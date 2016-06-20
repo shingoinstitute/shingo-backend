@@ -18,12 +18,12 @@ fs
 
 cache.add = function(filename, obj, callback) {
   obj.timestamp = new Date();
-  jsonfile.writeFile(path.join(__dirname, filename), obj, callback);
+  jsonfile.writeFile(path.join(__dirname, filename + ".json"), obj, callback);
 }
 
 cache.needsUpdated = function(file, minutes) {
+  if (!cache[file]) return true;
   var model = cache[file];
-  if (!model[file]) return true;
   var timestamp = new Date(model.timestamp);
   return (timestamp - new Date()) > parseInt(minutes) * 60000;
 }

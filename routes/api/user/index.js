@@ -2,7 +2,7 @@
 
 var router = require('express').Router(),
   passwordHash = require('password-hash'),
-  User = require('../../../models').User,
+  User = require('../../../models/mobile').User,
   connection_route = require('./connection'),
   message_route = require('./message'),
   cvent_route = require('./cvent');

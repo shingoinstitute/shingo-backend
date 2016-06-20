@@ -9,7 +9,6 @@ var express = require('express'),
   config = require('./config'),
   MySQLStore = require('express-mysql-session')(session),
   winston = require('winston'),
-  subdomains = require('express-subdomains'),
   routes = require('./routes');
 
 winston.add(winston.transports.File, {
@@ -21,9 +20,9 @@ var logger = new(winston.Logger)({
     new(winston.transports.Console)(),
     new(winston.transports.File)({
       filename: config.name + '.log'
-    });
+    })
   ]
-})
+});
 
 console.log = logger.info;
 
@@ -46,7 +45,7 @@ app.use(
             secure: config.cookie_security,
             maxAge: 3600000
         }
-    });
+    })
 );
 
 app.get('/auth_callback', function(req, res) {
@@ -78,7 +77,7 @@ app.get('/auth_callback', function(req, res) {
     });
 });
 
-app.use('*', routes);
+app.use('/', routes);
 
 app.listen(app.get('port'), function(){
   console.log('Node app is running on port', app.get('port'));

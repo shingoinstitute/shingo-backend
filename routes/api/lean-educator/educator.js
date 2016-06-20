@@ -1,6 +1,6 @@
 var router = require('express').Router(),
   Promise = require('bluebird'),
-  Educator = require('../models').Educator;
+  Educator = require('../../../models/lean-educator').Educator;
 
 router.get('/', function(req, res) {
   Educator.findAll({
