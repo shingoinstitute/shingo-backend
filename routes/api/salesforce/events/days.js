@@ -7,10 +7,10 @@ var router = require('express').Router(),
 
 router.route('/')
   .get(function(req,res){
-    var filename = 'sf_speakers';
+    var filename = 'sf_days';
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Speaker_Title__c, (SELECT Session__r.Id FROM Session_Speaker_Associations__r) FROM Shingo_Speaker__c";
+      var query = "Select Id, Name, Display_Name__c FROM Shingo_Agenda_Day__c";
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
@@ -65,10 +65,10 @@ router.route('/')
 
 router.route('/:id')
   .get(function(req,res){
-    var filename = 'sf_speakers' + req.params.id;
+    var filename = 'sf_days' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Speaker_Title__c, Picture_URL__c, Speaker_Biography__c, Contact__r.Email, Organization__r.Name, Speaker_Permission_Form_URL__c, (SELECT Session__r.Id, Session__r.Session_Display_Name__c FROM Session_Speaker_Associations__r) FROM Shingo_Speaker__c WHERE Id='" + req.params.id + "'";
+      var query = "Select Id, Name, Display_Name__c, (SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Session_Type__c FROM Shingo_Sessions__r) FROM Shingo_Agenda_Day__c WHERE Id='" + req.params.id + "'";
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
@@ -94,7 +94,7 @@ router.route('/:id')
   })
 
   router.get('/next/:next_url'){
-    var filename = 'sf_speakers_next_' + req.params.next_url;
+    var filename = 'sf_days_next_' + req.params.next_url;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
       var query = req.params.next_url);
