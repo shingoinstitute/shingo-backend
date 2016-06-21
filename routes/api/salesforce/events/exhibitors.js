@@ -7,15 +7,16 @@ var router = require('express').Router(),
 
 router.route('/')
   .get(function(req, res) {
-    var filename = 'sf_sessions' + (req.query.agenda_id ? "_agenda_" + req.query.agenda_id : "");
+    var filename = 'sf_exhibitors' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c FROM Shingo_Session__c" + (req.query.agenda_id ? " WHERE Agenda_Day__c='" + req.query.agenda_id + "'" : "");
+      var query = "SELECT Id, Organization__r.Name, Organization__r.Logo__c FROM Shingo_Exhibitor__c" + (req.query.event_id ? " WHERE Event__c='" + req.query.event_id + "')" : "");
+
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
             success: true,
-            sessions: results.records,
+            exhibitors: results.records,
             done: results.done,
             next_records: results.nextRecordsUrl
           }
@@ -65,15 +66,15 @@ router.route('/')
 
 router.route('/:id')
   .get(function(req, res) {
-    var filename = 'sf_sessions_' + req.params.id;
+    var filename = 'sf_exhibitors_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c, Track__c, Summary__c, Room__r.Name FROM Shingo_Session__c WHERE Id='" + req.params.id + "'";
+      var query = "SELECT Id, Organization__r.Name, Organization__r.Logo__c, Organization__r.App_Abstract__c, Organization__r.Public_Contact_Email__c, Organization__r.Website, Banner_URL__c, Map_Coordinate__c, Notes__c FROM Shingo_Exhibitor__c WHERE Id='" + req.params.id + "'";
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
             success: true,
-            session: results.records[0]
+            exhibitor: results.records[0]
           }
 
           res.json(response);
@@ -94,7 +95,7 @@ router.route('/:id')
   })
 
 router.get('/next/:next_records', function(req, res) {
-  var filename = 'sf_sessions_next_' + req.params.next_records;
+  var filename = 'sf_exhibitors_next_' + req.params.next_records;
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   if (cache.needsUpdated(filename, 30) || force_refresh) {
     var query = req.params.next_records;
@@ -102,7 +103,7 @@ router.get('/next/:next_records', function(req, res) {
       .then(function(results) {
         var response = {
           success: true,
-          sessions: results.records,
+          exhibitors: results.records,
           done: results.done,
           next_records: results.nextRecordsUrl,
           total_size: results.totalSize

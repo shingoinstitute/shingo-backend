@@ -34,7 +34,7 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-var store = new MySQLStore(config.mysql_connection);
+var store = new MySQLStore(config.mysql_connection.session_database);
 app.use(
     session({
         secret: 'iamawesome',

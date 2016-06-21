@@ -7,15 +7,17 @@ var router = require('express').Router(),
 
 router.route('/')
   .get(function(req, res) {
-    var filename = 'sf_sessions' + (req.query.agenda_id ? "_agenda_" + req.query.agenda_id : "");
+    console.log("Rooms route");
+    var filename = 'sf_rooms' + (req.query.venue_id ? "_venue_" + req.query.venue_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c FROM Shingo_Session__c" + (req.query.agenda_id ? " WHERE Agenda_Day__c='" + req.query.agenda_id + "'" : "");
+      var query = "SELECT Id, Name, Associated_Venue__r.Name FROM Shingo_Room__c" + (req.query.venue_id ? " WHERE Associated_Venue__c='" + req.query.venue_id + "'" : "");
+
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
             success: true,
-            sessions: results.records,
+            rooms: results.records,
             done: results.done,
             next_records: results.nextRecordsUrl
           }
@@ -65,15 +67,16 @@ router.route('/')
 
 router.route('/:id')
   .get(function(req, res) {
-    var filename = 'sf_sessions_' + req.params.id;
+    var filename = 'sf_rooms_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c, Track__c, Summary__c, Room__r.Name FROM Shingo_Session__c WHERE Id='" + req.params.id + "'";
+      var query = "SELECT Id, Name, Associated_Venue__r.Id, Associated_Venue__r.Name, Map_Coordinate__c FROM Shingo_Room__c WHERE Id='" + req.params.id + "'";
+
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
             success: true,
-            session: results.records[0]
+            hotel: results.records[0]
           }
 
           res.json(response);
@@ -94,15 +97,16 @@ router.route('/:id')
   })
 
 router.get('/next/:next_records', function(req, res) {
-  var filename = 'sf_sessions_next_' + req.params.next_records;
+  var filename = 'sf_rooms_next_' + req.params.next_records;
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   if (cache.needsUpdated(filename, 30) || force_refresh) {
     var query = req.params.next_records;
+
     SF.queryAsync(query)
       .then(function(results) {
         var response = {
           success: true,
-          sessions: results.records,
+          rooms: results.records,
           done: results.done,
           next_records: results.nextRecordsUrl,
           total_size: results.totalSize

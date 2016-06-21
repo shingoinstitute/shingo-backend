@@ -7,12 +7,22 @@ var router = require('express').Router(),
   speaker_route = require('./speakers'),
   session_route = require('./sessions'),
   day_route = require('./days'),
-  hotel_route = require('./hotels');
+  hotel_route = require('./hotels'),
+  room_route = require('./rooms'),
+  venue_route = require('./venues'),
+  exhibitor_route = require('./exhibitors'),
+  sponsor_route = require('./sponsors'),
+  recipient_route = require('./recipients');
 
 router.use('/speakers', speaker_route);
 router.use('/sessions', session_route);
 router.use('/days', day_route);
 router.use('/hotels', hotel_route);
+router.use('/rooms', room_route);
+router.use('/venues', venue_route);
+router.use('/exhibitors', exhibitor_route);
+router.use('/sponsors', sponsor_route);
+router.use('/recipients', recipient_route);
 
 router.route('/')
   .get(function(req, res, next) {
@@ -26,7 +36,7 @@ router.route('/')
             success: true,
             events: results.records,
             done: results.done,
-            next_url: results.nextRecordsUrl
+            next_records: results.nextRecordsUrl
           }
 
           res.json(response);
@@ -144,19 +154,20 @@ router.route('/:id')
     });
   });
 
-router.get('/next/:next_url', function(req, res) {
-  var filename = 'sf_events_next_' + req.params.next_url;
+router.get('/next/:next_records', function(req, res) {
+  var filename = 'sf_events_next_' + req.params.next_records;
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   if (cache.needsUpdated(filename, 30) || force_refresh) {
-    var query = req.params.next_url;
+    var query = req.params.next_records;
     SF.queryAsync(query)
       .then(function(results) {
         var response = {
           success: true,
-          event: {}
+          events: results.records,
+          done: results.done,
+          next_records: results.nextRecordsUrl,
+          total_size: results.totalSize
         }
-
-        response.event = results.records[0];
 
         res.json(response);
         return cache.addAsync(filename, response);

@@ -3,13 +3,14 @@ var router = require('express').Router(),
   Educator = require('../../../models/lean-educator').Educator;
 
 router.get('/', function(req, res) {
+  console.log("Getting all educators");
   Educator.findAll({
       order: [
         ['last_name', 'ASC']
       ]
     })
     .then(function(educators) {
-      res.json({
+      return res.json({
         educators: educators
       });
     }).catch(function(err) {
@@ -20,6 +21,7 @@ router.get('/', function(req, res) {
 });
 
 router.post('/', function(req, res) {
+  console.log("posting educators");
   if (!req.session.access_token) {
     return res.json({error: "Not authorized..."});
   }

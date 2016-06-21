@@ -17,7 +17,7 @@ router.route('/')
             success: true,
             speakers: results.records,
             done: results.done,
-            next_url: results.nextRecordsUrl
+            next_records: results.nextRecordsUrl
           }
 
           res.json(response);
@@ -93,19 +93,20 @@ router.route('/:id')
     }
   })
 
-router.get('/next/:next_url', function(req, res) {
-  var filename = 'sf_days_next_' + req.params.next_url;
+router.get('/next/:next_records', function(req, res) {
+  var filename = 'sf_days_next_' + req.params.next_records;
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   if (cache.needsUpdated(filename, 30) || force_refresh) {
-    var query = req.params.next_url;
+    var query = req.params.next_records;
     SF.queryAsync(query)
       .then(function(results) {
         var response = {
           success: true,
-          event: {}
+          days: results.records,
+          done: results.done,
+          next_records: results.nextRecordsUrl,
+          total_size: results.totalSize
         }
-
-        response.event = results.records[0];
 
         res.json(response);
         return cache.addAsync(filename, response);

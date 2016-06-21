@@ -11,19 +11,19 @@ var express = require('express'),
   subdomain = require('express-subdomain');
 
 insight_route.get('/', function(req, res, next){
-  res.sendFile(path.join(__dirname, 'public/insight-app/index.html'));
+  res.sendFile('/var/www/public/insight-app/index.html');
 });
 
 support_route.get('/', function(req, res, next){
-  res.sendFile(path.join(__dirname, 'public/support-app/index.html'));
+  res.sendFile('/var/www/public/support-app/index.html');
 });
 
 lean_route.get('/', function(req, res, next){
-  res.sendFile(path.join(__dirname, 'public/lean-app/index.html'));
+  res.sendFile('/var/www/public/lean-app/index.html');
 });
 
 admin_route.use('/', function(req, res, next){
-  res.sendFile(path.join(__dirname, 'public/admin-app/index.html'));
+  res.sendFile('/var/www/public/admin-app/index.html');
 });
 
 router.use(subdomain('insight', insight_route));
@@ -33,7 +33,7 @@ router.use(subdomain('lean', lean_route));
 router.use(subdomain('admin', admin_route));
 
 router.use(function(req, res){
-  res.sendFile(path.join(__dirname, 'public/app/index.html'));
+  res.sendFile(path.join(__dirname, '/var/www/public/app/index.html'));
 });
 
 module.exports = router;

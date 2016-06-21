@@ -11,14 +11,14 @@ router.route('/')
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
       var query = "SELECT Id, Name, Speaker_Title__c, (SELECT Session__r.Id FROM Session_Speaker_Associations__r) FROM Shingo_Speaker__c" + (req.query.session_id ? " WHERE Id IN(SELECT Speaker__c FROM Shingo_Session_Speaker_Association__c WHERE Session__c='" + req.query.session_id + "')" : "");
-      console.log("speaker query:", query);
+
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
             success: true,
             speakers: results.records,
             done: results.done,
-            next_url: results.nextRecordsUrl
+            next_records: results.nextRecordsUrl
           }
 
           res.json(response);
@@ -94,19 +94,20 @@ router.route('/:id')
     }
   })
 
-router.get('/next/:next_url', function(req, res) {
-  var filename = 'sf_speakers_next_' + req.params.next_url;
+router.get('/next/:next_records', function(req, res) {
+  var filename = 'sf_speakers_next_' + req.params.next_records;
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   if (cache.needsUpdated(filename, 30) || force_refresh) {
-    var query = req.params.next_url;
+    var query = req.params.next_records;
     SF.queryAsync(query)
       .then(function(results) {
         var response = {
           success: true,
-          event: {}
+          speakers: results.records,
+          done: results.done,
+          next_records: results.nextRecordsUrl,
+          total_size: results.totalSize
         }
-
-        response.event = results.records[0];
 
         res.json(response);
         return cache.addAsync(filename, response);

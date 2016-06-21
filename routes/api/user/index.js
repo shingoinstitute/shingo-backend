@@ -4,8 +4,10 @@ var router = require('express').Router(),
   passwordHash = require('password-hash'),
   User = require('../../../models/mobile').User,
   connection_route = require('./connection'),
-  message_route = require('./message'),
-  cvent_route = require('./cvent');
+  message_route = require('./message');
+
+router.use('/connection', connection_route);
+router.use('/message', message_route);
 
 router.get('/', function(req, res) {
   User.findAll({
@@ -139,9 +141,5 @@ router.post('/create', function(req, res) {
       });
     })
 })
-
-router.use('/connection', connection_route);
-router.use('/message', message_route);
-router.use('/cvent', cvent_route);
 
 module.exports = router;

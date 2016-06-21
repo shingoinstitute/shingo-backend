@@ -3,8 +3,8 @@
 var fs        = require("fs");
 var path      = require("path");
 var Sequelize = require("sequelize");
-var config    = require("../config").mysql_connection
-var sequelize = new Sequelize(config.support_database, config.support_user, config.support_password, {
+var config    = require("../config").mysql_connection.support_database;
+var sequelize = new Sequelize(config.database, config.user, config.password, {
   host: config.host,
   dialect: 'mysql',
   logging: false,

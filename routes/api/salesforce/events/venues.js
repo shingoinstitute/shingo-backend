@@ -7,15 +7,16 @@ var router = require('express').Router(),
 
 router.route('/')
   .get(function(req, res) {
-    var filename = 'sf_sessions' + (req.query.agenda_id ? "_agenda_" + req.query.agenda_id : "");
+    var filename = 'sf_venues' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c FROM Shingo_Session__c" + (req.query.agenda_id ? " WHERE Agenda_Day__c='" + req.query.agenda_id + "'" : "");
+      var query = "SELECT Id, Name, Address__c FROM Shingo_Venue__c" + (req.query.event_id ? " WHERE Id IN(SELECT Shingo_Venue__c FROM Shingo_Event_Venue__c WHERE Shingo_Event__c='" + req.query.event_id + "')" : "");
+      console.log("sf query", query);
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
             success: true,
-            sessions: results.records,
+            venues: results.records,
             done: results.done,
             next_records: results.nextRecordsUrl
           }
@@ -65,15 +66,15 @@ router.route('/')
 
 router.route('/:id')
   .get(function(req, res) {
-    var filename = 'sf_sessions_' + req.params.id;
+    var filename = 'sf_venues_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c, Track__c, Summary__c, Room__r.Name FROM Shingo_Session__c WHERE Id='" + req.params.id + "'";
+      var query = "SELECT Id, Name, Address__c, API_Google_Map__c, Venue_Location__c, Venue_Type__c, (SELECT Shingo_Event__r.Id, Shingo_Event__r.Name FROM Shingo_Event_Venue_Associations__r), (SELECT Id, Name FROM Shingo_Rooms__r) FROM Shingo_Venue__c WHERE Id='" + req.params.id + "'";
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
             success: true,
-            session: results.records[0]
+            hotel: results.records[0]
           }
 
           res.json(response);
@@ -94,7 +95,7 @@ router.route('/:id')
   })
 
 router.get('/next/:next_records', function(req, res) {
-  var filename = 'sf_sessions_next_' + req.params.next_records;
+  var filename = 'sf_venues_next_' + req.params.next_records;
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   if (cache.needsUpdated(filename, 30) || force_refresh) {
     var query = req.params.next_records;
@@ -102,7 +103,7 @@ router.get('/next/:next_records', function(req, res) {
       .then(function(results) {
         var response = {
           success: true,
-          sessions: results.records,
+          venues: results.records,
           done: results.done,
           next_records: results.nextRecordsUrl,
           total_size: results.totalSize
