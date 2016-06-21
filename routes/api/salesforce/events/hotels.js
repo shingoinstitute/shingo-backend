@@ -7,15 +7,16 @@ var router = require('express').Router(),
 
 router.route('/')
   .get(function(req, res) {
-    var filename = 'sf_sessions' + (req.query.agenda_id ? "_agenda_" + agenda_id : "");
+    var filename = 'sf_hotels' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c FROM Shingo_Session__c" + (req.query.agenda_id ? " WHERE Agenda_Day__c='" + req.query.agenda_id + "'" : "");
+      var query = "SELECT Id, Name, Address__c, (SELECT Event__c.Id, Event__c.Name FROM Event_Hotel_Associations__r) FROM Shingo_Hotel__c" + (req.query.event_id ? " WHERE Id IN(SELECT Hotel__c FROM Shingo_Event_Hotel_Association__c WHERE Event__c='" + req.query.event_id + "')" : "");
+      console.log("speaker query:", query);
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
             success: true,
-            speakers: results.records,
+            hotels: results.records,
             done: results.done,
             next_url: results.nextRecordsUrl
           }
@@ -65,15 +66,15 @@ router.route('/')
 
 router.route('/:id')
   .get(function(req, res) {
-    var filename = 'sf_sessions_' + req.params.id;
+    var filename = 'sf_hotels_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c, Track__c, Summary__c, Room__r.Name FROM Shingo_Session__c WHERE Id='" + req.params.id + "'";
+      var query = "SELECT Id, Name, Address__c, API_Google_Map__c, Code__c, Hotel_Phone__c, Hotel_Website__c, Travel_Information__c, (SELECT Event__r.Id, Event__r.Name FROM Event_Hotel_Associations__r), (SELECT Price__c FROM Shingo_Prices__r) FROM Shingo_Hotel__c WHERE Id='" + req.params.id + "'";
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
             success: true,
-            speaker: results.records[0]
+            hotel: results.records[0]
           }
 
           res.json(response);
@@ -94,7 +95,7 @@ router.route('/:id')
   })
 
 router.get('/next/:next_url', function(req, res) {
-  var filename = 'sf_sessions_next_' + req.params.next_url;
+  var filename = 'sf_hotels_next_' + req.params.next_url;
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   if (cache.needsUpdated(filename, 30) || force_refresh) {
     var query = req.params.next_url;
