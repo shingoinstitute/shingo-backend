@@ -2,7 +2,7 @@
 var config = {
   name: process.env.NAME,
   force_drop: (process.env.FORCE_DROP || false),
-  cookie_security: (process.env.COOKIE_SEC || true),
+  cookie_security: (process.env.COOKIE_SEC || false),
   port: (process.env.PORT || 5000)
 }
 

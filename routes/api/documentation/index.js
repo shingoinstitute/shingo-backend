@@ -6,6 +6,11 @@ var router = require('express').Router(),
  method_route = require('./methods'),
  tag_route = require('./tags');
 
+ router.use(function(req,res,next){
+   console.log("req.session.id", req.session.id);
+   next();
+ })
+
 router.use('/projects', project_route);
 router.use('/documents', document_route);
 router.use('/methods', method_route);

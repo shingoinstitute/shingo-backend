@@ -15,7 +15,7 @@ router.route('/')
 
 router.route('/:id')
   .get(function(req, res){
-    models.Project.findById(req.params.id, {include: [{all:true}]})
+    models.Project.findById(parseInt(req.params.id), {include: [{all:true}]})
     .then(function(project){
       res.json({success: true, project: project});
     })
