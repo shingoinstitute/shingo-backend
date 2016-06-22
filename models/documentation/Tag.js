@@ -2,7 +2,7 @@
 
 module.exports = function(sequelize, DataTypes) {
     var Tag = sequelize.define('Tag', {
-        name: DataTypes.STRING
+        name: {type: DataTypes.STRING, unique: true}
     }, {
         classMethods: {
             associate: function(models) {

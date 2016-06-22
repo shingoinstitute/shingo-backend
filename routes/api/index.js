@@ -6,16 +6,18 @@ var router = require('express').Router(),
   sf_api = require('./salesforce'),
   support_api = require('./support'),
   lean_api = require('./lean-educator'),
-  admin_api = require('./admin');
+  admin_api = require('./admin'),
+  doc_api = require('./documentation');
 
 router.use('/user', user_api);
 router.use('/salesforce', sf_api);
 router.use('/support', support_api);
 router.use('/lean-educator', lean_api);
 router.use('/admin', admin_api);
+router.use('/documentation', doc_api);
 
 router.get('/', function(req, res){
-  res.sendFile(path.join(__dirname, 'public/documentation-app/index.html'));
+  res.sendFile('/var/www/public/documentation-app/index.html');
 })
 
 module.exports = router;

@@ -5,9 +5,9 @@ var router = require('express').Router(),
 
 router.route('/')
   .get(function(req, res){
-    models.Project.findAll({include: [{all:true}]})
-    .then(function(projects){
-      res.json({success: true, projects: projects});
+    models.Document.findAll({include: [{all:true}]})
+    .then(function(docs){
+      res.json({success: true, docs: docs});
     }).catch(function(err){
       res.json({success: false, error: err})
     });
@@ -15,9 +15,9 @@ router.route('/')
 
 router.route('/:id')
   .get(function(req, res){
-    models.Project.findById(req.params.id, {include: [{all:true}]})
-    .then(function(project){
-      res.json({success: true, project: project});
+    models.Document.findById(req.params.id, {include: [{all:true}]})
+    .then(function(doc){
+      res.json({success: true, doc: doc});
     })
     .catch(function(err){
       res.json({success: false, error: err});
@@ -25,32 +25,32 @@ router.route('/:id')
   })
   .post(function(req, res){
     if(!req.session.access_token) return res.redirect('/auth');
-    var project = req.body.project;
+    var doc = req.body.doc;
 
-    models.Project.create(project, {include: [models.Tag]}).then(function(project){
-      res.json({success: true, project: project});
+    models.Document.create(doc, {include: [models.Tag]}).then(function(doc){
+      res.json({success: true, doc: doc});
     }).catch(function(err){
       res.json({success: false, error: err});
     });
   })
   .put(function(req, res){
     if(!req.session.access_token) return res.redirect('/auth');
-    var project = req.body.project;
+    var doc = req.body.doc;
     var id = parseInt(req.params.id);
 
-    models.Project.update(project, {where: {id: id}}).then(function(){
-      return models.Project.findById(id, {include: [{all:true}]});
-    }).then(function(project){
-      res.json({success: true, project: project});
+    models.Document.update(project, {where: {id: id}}).then(function(){
+      return models.Document.findById(id, {include: [{all:true}]});
+    }).then(function(doc){
+      res.json({success: true, doc: doc});
     }).catch(function(err){
       res.json({success: false, error: err});
     });
   })
   .delete(function(req, res){
     if(!req.session.access_token) return res.redirect('/auth');
-    models.Project.findById(parseInt(req.params.id))
-    .then(function(project){
-      return project.destroy();
+    models.Document.findById(parseInt(req.params.id))
+    .then(function(doc){
+      return doc.destroy();
     }).then(function(affectedRows){
       res.json({success: true, affected_rows: affectedRows});
     }).catch(function(err){
