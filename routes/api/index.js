@@ -20,16 +20,27 @@ router.use('/admin', admin_api);
 router.use('/documentation', doc_api);
 
 router.get('/auth', function(req, res){
-  console.log("query", req.query);
+  if(req.query.check){
+    return res.json({success: true, authed: (req.session.access_token ? true : false )});
+  }
   if(!req.session.access_token){
     res.redirect(config.sf.environment + "/services/oauth2/authorize?response_type=code&client_id=" + config.sf.client_id + "&redirect_uri=https://api." + config.sf.redirect_uri + "&state=" + req.query.state);
   } else {
-    res.redirect(req.query.state + '#/auth?authed=true');
+    res.redirect(req.query.state + '#/auth?authed=true' + (req.query.callback_path ? '&path=' + req.query.callback_path : ''));
   }
 });
 
+router.get('/logout', function(req,res){
+  if(!req.session.access_token){
+    res.json({success:true});
+  } else {
+    req.session.destroy(function(){
+      res.json({success:true});
+    });
+  }
+})
+
 router.get('/auth_callback', function(req, res) {
-    console.log("auth_callback");
     var post_data = {
         grant_type: 'authorization_code',
         code: req.query.code,
@@ -62,7 +73,7 @@ router.get('/auth_callback', function(req, res) {
 });
 
 router.use('/', function(req, res){
-  res.redirect('docs.shingo.org');
+  res.redirect('https://docs.shingo.org');
 });
 
 module.exports = router;

@@ -25,7 +25,8 @@ cache.needsUpdated = function(file, minutes) {
   if (!cache[file]) return true;
   var model = cache[file];
   var timestamp = new Date(model.timestamp);
-  return (timestamp - new Date()) > parseInt(minutes) * 60000;
+
+  return Math.abs(timestamp - new Date()) > parseInt(minutes) * 60000;
 }
 
 module.exports = cache;

@@ -38,7 +38,7 @@ router.route('/:id')
     var method = req.body.method;
     var id = parseInt(req.params.id);
 
-    models.Method.update(project, {where: {id: id}}).then(function(){
+    models.Method.update(method, {where: {id: id}}).then(function(){
       return models.Method.findById(id, {include: [{all:true}]});
     }).then(function(method){
       res.json({success: true, method: method});

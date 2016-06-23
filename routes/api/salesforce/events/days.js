@@ -10,13 +10,14 @@ router.route('/')
     var filename = 'sf_days' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "Select Id, Name, Display_Name__c FROM Shingo_Agenda_Day__c" + (req.query.event_id ? " WHERE Event__c='" + req.query.event_id + "'" : "");
+      var query = "Select Id, Name, Display_Name__c, Agenda_Date__c FROM Shingo_Agenda_Day__c" + (req.query.event_id ? " WHERE Event__c='" + req.query.event_id + "'" : "");
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
             success: true,
-            speakers: results.records,
+            days: results.records,
             done: results.done,
+            totalSize: results.totalSize,
             next_records: results.nextRecordsUrl
           }
 
@@ -73,7 +74,7 @@ router.route('/:id')
         .then(function(results) {
           var response = {
             success: true,
-            speaker: results.records[0]
+            day: results.records[0]
           }
 
           res.json(response);
