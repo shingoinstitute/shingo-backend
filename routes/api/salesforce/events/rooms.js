@@ -76,7 +76,7 @@ router.route('/:id')
         .then(function(results) {
           var response = {
             success: true,
-            hotel: results.records[0]
+            room: results.records[0]
           }
 
           res.json(response);
