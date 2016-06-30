@@ -74,7 +74,7 @@ router.route('/:id')
         .then(function(results) {
           var response = {
             success: true,
-            recipient: results.records[0]
+            sponsor: results.records[0]
           }
 
           res.json(response);
