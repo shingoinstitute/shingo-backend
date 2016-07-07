@@ -19,6 +19,7 @@ fs
 cache.add = function(filename, obj, callback) {
   obj.timestamp = new Date();
   jsonfile.writeFile(path.join(__dirname, filename + ".json"), obj, callback);
+  cache[filename] = obj;
 }
 
 cache.needsUpdated = function(file, minutes) {
