@@ -35,6 +35,7 @@ router.route('/')
           var response = {
             success: true,
             events: results.records,
+            total_size: results.totalSize,
             done: results.done,
             next_records: results.nextRecordsUrl
           }

@@ -16,6 +16,7 @@ router.route('/')
           var response = {
             success: true,
             sessions: results.records,
+            total_size: results.totalSize,
             done: results.done,
             next_records: results.nextRecordsUrl
           }

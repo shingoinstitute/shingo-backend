@@ -17,6 +17,7 @@ router.route('/')
           var response = {
             success: true,
             speakers: results.records,
+            total_size: results.totalSize,
             done: results.done,
             next_records: results.nextRecordsUrl
           }
