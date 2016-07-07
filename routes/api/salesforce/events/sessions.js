@@ -7,10 +7,10 @@ var router = require('express').Router(),
 
 router.route('/')
   .get(function(req, res) {
-    var filename = 'sf_sessions' + (req.query.agenda_id ? "_agenda_" + req.query.agenda_id : "");
+    var filename = 'sf_sessions' + (req.query.agenda_id ? "_agenda_" + req.query.agenda_id : (req.query.event_id ? "_event_" + req.query.event_id : ""));
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c FROM Shingo_Session__c" + (req.query.agenda_id ? " WHERE Agenda_Day__c='" + req.query.agenda_id + "'" : "");
+      var query = "SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c FROM Shingo_Session__c" + (req.query.agenda_id ? " WHERE Agenda_Day__c='" + req.query.agenda_id + "'" : (req.query.event_id ? " WHERE Agenda_Day__r.Event__c='" + req.query.event_id + "'" : ""));
       SF.queryAsync(query)
         .then(function(results) {
           var response = {

@@ -7,10 +7,10 @@ var router = require('express').Router(),
 
 router.route('/')
   .get(function(req, res) {
-    var filename = 'sf_speakers' + (req.query.session_id ? "_session_" + req.query.session_id : "");
+    var filename = 'sf_speakers' + (req.query.session_id ? "_session_" + req.query.session_id : (req.query.event_id ? "_event_" + req.query.event_id : ""));
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Speaker_Title__c, (SELECT Session__r.Id FROM Session_Speaker_Associations__r) FROM Shingo_Speaker__c" + (req.query.session_id ? " WHERE Id IN(SELECT Speaker__c FROM Shingo_Session_Speaker_Association__c WHERE Session__c='" + req.query.session_id + "')" : "");
+      var query = "SELECT Id, Name, Speaker_Title__c, (SELECT Session__r.Id FROM Session_Speaker_Associations__r) FROM Shingo_Speaker__c" + (req.query.session_id ? " WHERE Id IN(SELECT Speaker__c FROM Shingo_Session_Speaker_Association__c WHERE Session__c='" + req.query.session_id + "')" : (req.query.event_id ? " WHERE Id IN(SELECT Speaker__c FROM Shingo_Session_Speaker_Association__c WHERE Session__r.Agenda_Day__r.Event__c='" + req.query.event_id + "'" : ""));
 
       SF.queryAsync(query)
         .then(function(results) {
