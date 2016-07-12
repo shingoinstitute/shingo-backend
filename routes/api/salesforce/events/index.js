@@ -29,7 +29,7 @@ router.route('/')
     var filename = 'sf_events';
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Publish_to_Web_App__c FROM Shingo_Event__c";
+      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Publish_to_Web_App__c, Display_Location__c FROM Shingo_Event__c";
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
