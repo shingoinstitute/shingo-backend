@@ -10,7 +10,7 @@ router.route('/')
     var filename = 'sf_exhibitors' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Organization__r.Name, Organization__r.Logo__c FROM Shingo_Exhibitor__c" + (req.query.event_id ? " WHERE Event__c='" + req.query.event_id + "')" : "");
+      var query = "SELECT Id, Organization__r.Name, Organization__r.Logo__c, Organization__r.App_Abstract__c FROM Shingo_Exhibitor__c" + (req.query.event_id ? " WHERE Event__c='" + req.query.event_id + "'" : "");
 
       SF.queryAsync(query)
         .then(function(results) {
