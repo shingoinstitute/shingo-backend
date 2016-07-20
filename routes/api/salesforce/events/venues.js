@@ -70,7 +70,7 @@ router.route('/:id')
     var filename = 'sf_venues_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Address__c, API_Google_Map__c, Venue_Location__c, Venue_Type__c, (SELECT Shingo_Event__r.Id, Shingo_Event__r.Name FROM Shingo_Event_Venue_Associations__r), (SELECT Id, Name FROM Shingo_Rooms__r) FROM Shingo_Venue__c WHERE Id='" + req.params.id + "'";
+      var query = "SELECT Id, Name, Address__c, API_Google_Map__c, Venue_Location__c, Venue_Type__c, Maps__c, (SELECT Shingo_Event__r.Id, Shingo_Event__r.Name FROM Shingo_Event_Venue_Associations__r), (SELECT Id, Name FROM Shingo_Rooms__r) FROM Shingo_Venue__c WHERE Id='" + req.params.id + "'";
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
