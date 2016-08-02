@@ -88,7 +88,7 @@ router.route('/:id')
     var filename = 'sf_events_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Sales_Text__c, Display_Location__c, Event_Manager__r.Name, Event_Website__c, Host_City__c, Host_Country__c, Maximum_Registration__c, Primary_Color__c, Printable_Agenda_URL__c, Publish_to_Web_App__c, Registration_Link__c, (SELECT Id, Name, Display_Name__c, Agenda_Date__c FROM Shingo_Day_Agendas__r), (SELECT Price__c FROM Shingo_Prices__r WHERE Hotel__c=null), (SELECT Badge_Name__c, Badge_Title__c, Contact__r.Account.Name FROM Shingo_Attendees__r) FROM Shingo_Event__c WHERE Id='" + req.params.id + "'";
+      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Sales_Text__c, Display_Location__c, Event_Manager__r.Name, Event_Website__c, Host_City__c, Host_Country__c, Maximum_Registration__c, Primary_Color__c, Printable_Agenda_URL__c, Publish_to_Web_App__c, Registration_Link__c, (SELECT Id, Name, Display_Name__c, Agenda_Date__c FROM Shingo_Day_Agendas__r), (SELECT Price__c FROM Shingo_Prices__r WHERE Hotel__c=null), (SELECT Badge_Name__c, Badge_Title__c, Contact__r.Id, Contact__r.Name, Contact__r.Account.Name FROM Shingo_Attendees__r) FROM Shingo_Event__c WHERE Id='" + req.params.id + "'";
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
