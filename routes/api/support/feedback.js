@@ -13,7 +13,7 @@ router.route('/')
     console.log("POST: /support/feedback",req.route);
     if(!req.body.description || !req.body.device || !req.body.details || !req.body.rating)
       return res.status(400).json({success:false,error:"Missing parameters!"});
-    Feedback.create({email: (req.body.email ? req.body.email : "Not Provided"), description: req.body.description, device: req.body.device, details: req.body.details, rating: parseInt(req.body.rating)})
+    Feedback.create({email: (req.body.email ? req.body.email : "Not Provided"), description: req.body.description, device: req.body.device, details: req.body.details, rating: parseFloat(req.body.rating)})
     .then(function(feedback){
       res.status(201).json({success:true, feedback: feedback});
     }).catch(function(err){
