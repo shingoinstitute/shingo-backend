@@ -6,7 +6,7 @@ module.exports = function(sequelize, DataTypes){
     email: DataTypes.STRING,
     device: DataTypes.STRING,
     details: DataTypes.TEXT,
-    rating: DataTypes.INTEGER
+    rating: DataTypes.FLOAT
   })
 
   return Feedback;
