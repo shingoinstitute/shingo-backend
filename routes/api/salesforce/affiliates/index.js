@@ -10,7 +10,7 @@ router.route('/')
     var filename = 'affiliates';
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Logo__c, Page_Path__c, Website, App_Abstract__c FROM Account WHERE RecordType.Name='Licensed Affiliate' AND (NOT Name LIKE 'McKinsey%')";
+      var query = "SELECT Id, Name, Logo__c, Page_Path__c, Website, App_Abstract__c, Language_Specialties__c FROM Account WHERE RecordType.Name='Licensed Affiliate' AND (NOT Name LIKE 'McKinsey%')";
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
