@@ -10,7 +10,7 @@ router.route('/')
     var filename = 'sf_venues' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Address__c FROM Shingo_Venue__c" + (req.query.event_id ? " WHERE Id IN(SELECT Shingo_Venue__c FROM Shingo_Event_Venue__c WHERE Shingo_Event__c='" + req.query.event_id + "')" : "");
+      var query = "SELECT Id, Name, Address__c, API_Google_Map__c, Venue_Location__c, Venue_Type__c, (SELECT Name, Floor__c, URL__c FROM Maps__r), (SELECT Shingo_Event__r.Id, Shingo_Event__r.Name FROM Shingo_Event_Venue_Associations__r), (SELECT Id, Name, Map_X_Coordinate__c, Map_Y_Coordinate__c, Floor__c FROM Shingo_Rooms__r) FROM Shingo_Venue__c" + (req.query.event_id ? " WHERE Id IN(SELECT Shingo_Venue__c FROM Shingo_Event_Venue__c WHERE Shingo_Event__c='" + req.query.event_id + "')" : "");
       console.log("sf query", query);
       SF.queryAsync(query)
         .then(function(results) {
