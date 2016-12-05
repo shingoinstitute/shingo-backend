@@ -3,11 +3,7 @@ var router = require('express').Router(),
 
 router.route('/')
   .get(function(req, res){
-    Bug.findAll().then(function(bugs){
-      res.json({success:true, bugs:bugs});
-    }).catch(function(err){
-      res.status(400).json({success:false, error: err});
-    });
+    res.status(404).json({success:false, error: 'Not implemented'});
   })
   .post(function(req, res){
     console.log("POST: /support/bugs",req.route);
