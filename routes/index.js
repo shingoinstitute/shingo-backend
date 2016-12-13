@@ -32,8 +32,8 @@ router.use(subdomain('support', support_route));
 router.use(subdomain('admin', admin_route));
 router.use(subdomain('docs', doc_route));
 
-// router.use(function(req, res){
-//   res.sendFile('/var/www/public/app/index.html');
-// });
+router.use(function(req, res){
+  res.sendFile('/var/www/public/app/index.html');
+});
 
 module.exports = router;
