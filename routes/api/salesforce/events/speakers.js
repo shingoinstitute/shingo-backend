@@ -10,7 +10,7 @@ router.route('/')
     var filename = 'sf_speakers' + (req.query.session_id ? "_session_" + req.query.session_id : (req.query.event_id ? "_event_" + req.query.event_id : ""));
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Speaker_Title__c, Picture_URL__c, Speaker_Biography__c, Contact__r.Email, Organization__r.Name, (SELECT Is_Keynote_Speaker__c FROM Session_Speaker_Associations__r WHERE Is_Keynote_Speaker__c=TRUE) FROM Shingo_Speaker__c" + (req.query.session_id ? " WHERE Id IN(SELECT Speaker__c FROM Shingo_Session_Speaker_Association__c WHERE Session__c='" + req.query.session_id + "')" : (req.query.event_id ? " WHERE Id IN(SELECT Speaker__c FROM Shingo_Session_Speaker_Association__c WHERE Session__r.Agenda_Day__r.Event__c='" + req.query.event_id + "')" : ""));
+      var query = "SELECT Id, Name, Speaker_Title__c, Picture_URL__c, Speaker_Biography__c, Contact__r.Email, Contact__r.LastName, Organization__r.Name, (SELECT Is_Keynote_Speaker__c FROM Session_Speaker_Associations__r WHERE Is_Keynote_Speaker__c=TRUE) FROM Shingo_Speaker__c" + (req.query.session_id ? " WHERE Id IN(SELECT Speaker__c FROM Shingo_Session_Speaker_Association__c WHERE Session__c='" + req.query.session_id + "')" : (req.query.event_id ? " WHERE Id IN(SELECT Speaker__c FROM Shingo_Session_Speaker_Association__c WHERE Session__r.Agenda_Day__r.Event__c='" + req.query.event_id + "')" : ""));
 
       SF.queryAsync(query)
         .then(function(results) {
