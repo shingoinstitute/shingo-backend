@@ -5,17 +5,17 @@ var router = require('express').Router(),
   SF = Promise.promisifyAll(require('../../../../models/sf')),
   cache = Promise.promisifyAll(require('../../../../models/cache'));
 
-router.route('/')
+router.route('/:id')
   .get(function(req, res, next) {
-    var filename = 'workshops';
+    var filename = 'facilitators_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Host_Site__c, Start_Date__c, End_Date__c, Event_City__c, Event_Country__c, Organizing_Affiliate__r.Name, Organizing_Affiliate__r.Page_Path__c, Workshop_Type__c, Registration_Website__c FROM Workshop__c WHERE Public__c=true AND Status__c='Verified'";
+      var query = "SELECT Id, Name, Title, Biography__c, Photograph__c, Account.Name FROM Contact WHERE Facilitator_For__r.Id='" + req.params.id + "' ORDER BY LastName";
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
             success: true,
-            workshops: results.records,
+            records: results.records,
             total_size: results.totalSize,
             done: results.done,
             next_records: results.nextRecordsUrl
@@ -37,9 +37,35 @@ router.route('/')
       res.json(cache[filename]);
     }
   })
+  .post(function(req, res) {
+    if (!req.session.access_token) {
+      return res.json({
+        success: false,
+        error: "Not authorized!"
+      });
+    }
+
+    res.json({
+      success: false,
+      error: "Not implemented!"
+    });
+  })
+  .delete(function(req, res) {
+    if (!req.session.access_token) {
+      return res.json({
+        success: false,
+        error: "Not authorized!"
+      });
+    }
+
+    res.json({
+      success: false,
+      error: "Not implemented!"
+    });
+  });
 
 router.get('/next/:next_records', function(req, res) {
-  var filename = 'workshops_next_' + req.params.next_records;
+  var filename = 'facilitators_next_' + req.params.next_records;
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   if (cache.needsUpdated(filename, 30) || force_refresh) {
     var query = req.params.next_records;
@@ -47,7 +73,7 @@ router.get('/next/:next_records', function(req, res) {
       .then(function(results) {
         var response = {
           success: true,
-          workshops: results.records,
+          records: results.records,
           done: results.done,
           next_records: results.nextRecordsUrl,
           total_size: results.totalSize
