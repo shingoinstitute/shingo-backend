@@ -142,7 +142,7 @@ router.route('/web/:id')
     var filename = 'affiliates_info_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Logo__c, Website, Page_Path__c, Summary__c, Industry_List__c, Locations__c, Languages__c, Public_Contact__c, Public_Contact_Phone__c, Public_Contact_Email__c FROM Account WHERE Id='" + req.params.id + "'";
+      var query = "SELECT Id, Name, Logo__c, Website, Page_Path__c, Summary__c, Industry_List__c, Locations__c, Languages__c, Public_Contact__c, Public_Contact_Phone__c, Public_Contact_Email__c, Youtube_Path__c FROM Account WHERE Id='" + req.params.id + "'";
       SF.queryAsync(query)
         .then(function(results) {
           var response = {
