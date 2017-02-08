@@ -6,7 +6,6 @@ var router = require('express').Router(),
   sf_api = require('./salesforce'),
   support_api = require('./support'),
   admin_api = require('./admin'),
-  doc_api = require('./documentation'),
   config = require('../../config'),
   Promise = require('bluebird'),
   request = Promise.promisifyAll(require('request')),
@@ -17,7 +16,6 @@ router.use('/user', user_api);
 router.use('/salesforce', sf_api);
 router.use('/support', support_api);
 router.use('/admin', admin_api);
-router.use('/documentation', doc_api);
 
 router.get('/auth', function(req, res){
   if(req.query.check){

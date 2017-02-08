@@ -6,7 +6,6 @@ var express = require('express'),
   insight_route = express.Router(),
   support_route = express.Router(),
   admin_route = express.Router(),
-  doc_route = express.Router(),
   api_route = require('./api'),
   subdomain = require('express-subdomain');
 

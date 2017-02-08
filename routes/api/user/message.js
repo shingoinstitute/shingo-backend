@@ -5,7 +5,7 @@ var router = require('express').Router(),
   User = models.User,
   Message = models.Message,
   UserHasMessages = models.UserHasMessages,
-  Logger = require('../../../../Logger.js'),
+  Logger = require('../../../Logger.js'),
   logger = new Logger().logger;
 
 router.get('/', function(req, res) {
