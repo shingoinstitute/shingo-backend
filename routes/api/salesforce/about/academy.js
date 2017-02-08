@@ -3,16 +3,18 @@
 var router = require('express').Router(),
   Promise = require('bluebird'),
   SF = Promise.promisifyAll(require('../../../../models/sf')),
-  cache = Promise.promisifyAll(require('../../../../models/cache'));
+  cache = Promise.promisifyAll(require('../../../../models/cache')),
+  Logger = require('../../../../Logger.js'),
+  logger = new Logger().logger;
 
 router.route('/')
-  .get(function(req, res, next) {
+  .get(function (req, res, next) {
     var filename = 'academy';
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
       var query = "SELECT Id, Name, Title, Account.Name FROM Contact WHERE Shingo_Prize_Relationship__c INCLUDES('Shingo Academy') ORDER BY LastName";
       SF.queryAsync(query)
-        .then(function(results) {
+        .then(function (results) {
           var response = {
             success: true,
             academy: results.records,
@@ -24,10 +26,11 @@ router.route('/')
           res.json(response);
           return cache.addAsync(filename, response);
         })
-        .then(function() {
-          console.log("Cache updated!");
+        .then(function () {
+          logger.log("verbose", "Cache updated!");
         })
-        .catch(function(err) {
+        .catch(function (err) {
+          logger.log("error", "ACADEMY API ROUTE\n%j", err);
           res.json({
             success: false,
             error: err
@@ -38,13 +41,13 @@ router.route('/')
     }
   })
 
-router.get('/next/:next_records', function(req, res) {
+router.get('/next/:next_records', function (req, res) {
   var filename = 'academy_next_' + req.params.next_records;
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   if (cache.needsUpdated(filename, 30) || force_refresh) {
     var query = req.params.next_records;
     SF.queryAsync(query)
-      .then(function(results) {
+      .then(function (results) {
         var response = {
           success: true,
           academy: results.records,
@@ -56,10 +59,11 @@ router.get('/next/:next_records', function(req, res) {
         res.json(response);
         return cache.addAsync(filename, response);
       })
-      .then(function() {
-        console.log("Cache updated!");
+      .then(function () {
+        logger.log("verbose", "Cache updated!");
       })
-      .catch(function(err) {
+      .catch(function (err) {
+        logger.log("error", "ACADEMY API ROUTE NEXT %s\n%j", req.params.next_records, err);
         res.json({
           success: false,
           error: err

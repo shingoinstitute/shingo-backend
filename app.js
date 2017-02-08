@@ -8,23 +8,9 @@ var express = require('express'),
   bodyParser = require('body-parser'),
   config = require('./config'),
   MySQLStore = require('express-mysql-session')(session),
-  winston = require('winston'),
-  routes = require('./routes');
-
-winston.add(winston.transports.File, {
-  filename: config.name + '.log'
-});
-
-var logger = new(winston.Logger)({
-  transports: [
-    new(winston.transports.Console)(),
-    new(winston.transports.File)({
-      filename: config.name + '.log'
-    })
-  ]
-});
-
-console.log = logger.info;
+  routes = require('./routes'),
+  Logger = require('./Logger'),
+  logger = new Logger().logger;
 
 var app = express()
 app.set('port', config.port)
@@ -51,5 +37,5 @@ app.use(
 app.use('/', routes);
 
 app.listen(app.get('port'), function(){
-  console.log('Node app is running on port', app.get('port'));
+  logger.log("info", "Node app is running on port %s", app.get('port'));
 });
