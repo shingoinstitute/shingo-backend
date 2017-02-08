@@ -29,7 +29,8 @@ function Logger(log_level, log_file, log_error_file){
                 colorize: true,
                 prettyPrint: true,
                 timestamp: true,
-                tailable: true
+                tailable: true,
+                json: false
             }),
             new (winston.transports.File)({ 
                 name: 'error-log',
@@ -38,7 +39,8 @@ function Logger(log_level, log_file, log_error_file){
                 colorize: true,
                 prettyPrint: true,
                 timestamp: true,
-                tailable: true
+                tailable: true,
+                json: false
             })
         ],
         exitOnError: false
