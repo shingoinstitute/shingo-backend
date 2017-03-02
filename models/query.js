@@ -4,9 +4,9 @@ var Promise = require('bluebird'),
   SF = Promise.promisifyAll(require('./sf')),
   cache = Promise.promisifyAll(require('./cache'));
 
+var q = {}
 
-
-var getQuery = function(filename, query, force_refresh, res){
+q.getQuery = function(filename, query, force_refresh, res){
   if(cache.needsUpdated(filename, 30) || force_refresh){
     var query = query;
     SF.queryAsync(query)
@@ -37,4 +37,18 @@ var getQuery = function(filename, query, force_refresh, res){
   }
 }
 
-module.exports = getQuery
+q.notImplemented = function(req, res){
+   if (!req.session.access_token) {
+    return res.json({
+      success: false,
+      error: "Not authorized!"
+    });
+  }
+
+  res.json({
+    success: false,
+    error: "Not implemented!"
+  });
+}
+
+module.exports = q
