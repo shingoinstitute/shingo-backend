@@ -7,7 +7,9 @@ var Promise = require('bluebird'),
 var q = {}
 
 q.getQuery = function(filename, query, force_refresh, res){
-  if(cache.needsUpdated(filename, 30) || force_refresh){
+  var forced = force_refresh ? force_refresh : false;
+  console.log("forced: ", forced);
+  if(cache.needsUpdated(filename, 30) || forced){
     var query = query;
     SF.queryAsync(query)
       .then(function(results){
