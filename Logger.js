@@ -11,7 +11,7 @@ var path = require('path');
 function Logger(log_level, log_path, log_file){
     this.log_level = log_level || process.env.LOG_LEVEL || 'debug';
     this.log_path = log_path || process.env.LOG_PATH || 'logs';
-    this.log_file = log_file || process.env.LOG_FILE || 'info.log';
+    this.log_file = log_file || process.env.LOG_FILE || 'api.log';
 
     this.logger = new (winston.Logger)({
         level: this.log_level,
