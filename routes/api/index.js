@@ -5,17 +5,15 @@ var router = require('express').Router(),
   user_api = require('./user'),
   sf_api = require('./salesforce'),
   support_api = require('./support'),
-  admin_api = require('./admin'),
-  doc_api = require('./documentation'),
-  config = require('../../config'),
+  config = require(path.join(appRoot, 'config.js')),
   Promise = require('bluebird'),
-  request = Promise.promisifyAll(require('request'));
+  request = Promise.promisifyAll(require('request')),
+  Logger = require(path.join(appRoot, 'Logger.js')),
+  logger = new Logger().logger;
 
 router.use('/user', user_api);
 router.use('/salesforce', sf_api);
 router.use('/support', support_api);
-router.use('/admin', admin_api);
-router.use('/documentation', doc_api);
 
 router.get('/auth', function(req, res){
   if(req.query.check){
@@ -65,7 +63,7 @@ router.get('/auth_callback', function(req, res) {
 
         return res.redirect(req.query.state + '#/auth?authed=true');
     }).catch(function(err) {
-        console.log(err);
+        logger.log("error", "AUTH_CALLBACK ROUTE (api/index.js)\n%j", err);
         return res.redirect(req.query.state);
     });
 });

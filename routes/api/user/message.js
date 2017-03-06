@@ -1,10 +1,13 @@
 'use strict';
 
 var router = require('express').Router(),
-  models = require('../../../models/mobile'),
+  path = require('path'),
+  models = require(path.join(appRoot, 'models/mobile')),
   User = models.User,
   Message = models.Message,
-  UserHasMessages = models.UserHasMessages;
+  UserHasMessages = models.UserHasMessages,
+  Logger = require(path.join(appRoot, 'Logger.js')),
+  logger = new Logger().logger;
 
 router.get('/', function(req, res) {
   var userId = parseInt(req.session.user_id);
@@ -25,7 +28,7 @@ router.get('/', function(req, res) {
         messages: messages
       });
     }).catch(function(err) {
-      console.log("Error:", err);
+      logger.log("error", "USER MESSAGE ROUTE\n%j", err);
       res.json({
         success: false,
         error: {
@@ -62,7 +65,7 @@ router.post('/send', function(req, res) {
         message: this.message
       });
     }).catch(function(err) {
-      console.log("Error", err);
+      logger.log("error", "USER MESSAGE SEND ROUTE\n%j", err);
       res.json({
         success: false,
         error: {
