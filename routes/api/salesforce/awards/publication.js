@@ -1,7 +1,8 @@
 'use strict'
 
 var router = require('express').Router(),
-  q = require('../../../../models/query');
+  path = require('path'),
+  q = require(path.join(appRoot, 'models/query'));
 
 var file = 'publication_awards';
 

@@ -1,11 +1,12 @@
 'use strict';
 
 var router = require('express').Router(),
-  models = require('../../../models/mobile'),
+  path = require('path'),
+  models = require(path.join(appRoot, 'models/mobile')),
   User = models.User,
   Message = models.Message,
   UserHasMessages = models.UserHasMessages,
-  Logger = require('../../../Logger.js'),
+  Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger;
 
 router.get('/', function(req, res) {

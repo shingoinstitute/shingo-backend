@@ -1,7 +1,8 @@
 'use strict';
 
 var router = require('express').Router(),
-  models = require('../../../models/mobile'),
+  path = require('path'),
+  models = require(path.join(appRoot, 'models/mobile')),
   User = models.User,
   Connection = models.Connection;
 

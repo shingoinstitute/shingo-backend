@@ -2,8 +2,12 @@
 
 require('dotenv').load();
 
+// !!! Set a global variable for the app root
+// This way we don't have to play the ../../../ game
+var path = require('path'); 
+global.appRoot = path.resolve(__dirname);
+global.path = path;
 var express = require('express'),
-  path = require('path'),
   session = require('express-session'),
   bodyParser = require('body-parser'),
   config = require('./config'),
@@ -11,6 +15,7 @@ var express = require('express'),
   routes = require('./routes'),
   Logger = require('./Logger'),
   logger = new Logger().logger;
+
 
 var app = express()
 app.set('port', config.port)

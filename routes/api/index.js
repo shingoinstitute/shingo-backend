@@ -5,17 +5,15 @@ var router = require('express').Router(),
   user_api = require('./user'),
   sf_api = require('./salesforce'),
   support_api = require('./support'),
-  admin_api = require('./admin'),
-  config = require('../../config'),
+  config = require(path.join(appRoot, 'config.js')),
   Promise = require('bluebird'),
   request = Promise.promisifyAll(require('request')),
-  Logger = require('../../Logger.js'),
+  Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger;
 
 router.use('/user', user_api);
 router.use('/salesforce', sf_api);
 router.use('/support', support_api);
-router.use('/admin', admin_api);
 
 router.get('/auth', function(req, res){
   if(req.query.check){

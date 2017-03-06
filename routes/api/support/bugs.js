@@ -1,6 +1,7 @@
 var router = require('express').Router(),
-  Bug = require('../../../models/support').Bug,
-  Logger = require('../../../Logger.js'),
+  path = require('path'),
+  Bug = require(path.join(appRoot, 'models/support')).Bug,
+  Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger;
 
 router.route('/')

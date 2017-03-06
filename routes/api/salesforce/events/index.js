@@ -2,8 +2,9 @@
 
 var router = require('express').Router(),
   Promise = require('bluebird'),
-  SF = Promise.promisifyAll(require('../../../../models/sf')),
-  cache = Promise.promisifyAll(require('../../../../models/cache')),
+  path = require('path'),
+  SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
+  cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
   speaker_route = require('./speakers'),
   session_route = require('./sessions'),
   day_route = require('./days'),
@@ -13,7 +14,7 @@ var router = require('express').Router(),
   exhibitor_route = require('./exhibitors'),
   sponsor_route = require('./sponsors'),
   recipient_route = require('./recipients'),
-  Logger = require('../../../../Logger.js'),
+  Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger;
 
 router.use('/speakers', speaker_route);

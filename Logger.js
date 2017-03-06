@@ -1,4 +1,5 @@
 var winston = require('winston')
+var path = require('path');
 
 /**
  * A wrapper for the winston logger
@@ -7,10 +8,10 @@ var winston = require('winston')
  * @param log_error_file :: Similar to log_file execpt it only logs errors.
  * @member logger :: the actual logger to use. Reference https://github.com/winstonjs/winston#instantiating-your-own-logger.
  */
-function Logger(log_level, log_file, log_error_file){
+function Logger(log_level, log_path, log_file){
     this.log_level = log_level || process.env.LOG_LEVEL || 'debug';
-    this.log_file = log_file || process.env.LOG_FILE || 'logs/info.log';
-    this.log_error_file = log_error_file  || process.env.LOG_ERROR_FILE || 'logs/error.log';
+    this.log_path = log_path || process.env.LOG_PATH || 'logs';
+    this.log_file = log_file || process.env.LOG_FILE || 'info.log';
 
     this.logger = new (winston.Logger)({
         level: this.log_level,
@@ -24,23 +25,13 @@ function Logger(log_level, log_file, log_error_file){
             }),
             new (winston.transports.File)({ 
                 name: 'info-log',
-                filename: this.log_file,
+                filename: path.normalize(path.join(this.log_path, this.log_file)),
                 level: this.log_level,
-                colorize: true,
-                prettyPrint: true,
+                colorize: false,
+                prettyPrint: false,
                 timestamp: true,
                 tailable: true,
-                json: false
-            }),
-            new (winston.transports.File)({ 
-                name: 'error-log',
-                filename: this.log_error_file,
-                level: 'error',
-                colorize: true,
-                prettyPrint: true,
-                timestamp: true,
-                tailable: true,
-                json: false
+                json: true
             })
         ],
         exitOnError: false

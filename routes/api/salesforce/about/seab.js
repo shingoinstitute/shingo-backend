@@ -2,9 +2,10 @@
 
 var router = require('express').Router(),
   Promise = require('bluebird'),
-  SF = Promise.promisifyAll(require('../../../../models/sf')),
-  cache = Promise.promisifyAll(require('../../../../models/cache')),
-  Logger = require('../../../../Logger.js'),
+  path = require('path'),
+  SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
+  cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
+  Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger;
 
 
