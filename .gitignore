@@ -41,3 +41,6 @@ jspm_packages
 
 # Cached models
 models/cache/*.json
+
+# Visual Studio Code
+.vscode/
