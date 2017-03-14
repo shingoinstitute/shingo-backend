@@ -8,6 +8,14 @@ var router = require('express').Router(),
   Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger;
 
+function cleanAttributes(obj) {
+  Object.keys(obj).forEach(function (key) {
+    key === 'attributes' && delete obj[key] ||
+      (obj[key] && typeof obj[key] === 'object') && cleanAttributes(obj[key])
+  });
+  return obj;
+};
+ 
 router.route('/')
   .get(function (req, res) {
     var filename = 'sf_speakers' + (req.query.session_id ? "_session_" + req.query.session_id : (req.query.event_id ? "_event_" + req.query.event_id : ""));
@@ -25,6 +33,8 @@ router.route('/')
             done: results.done,
             next_records: results.nextRecordsUrl
           }
+
+          cleanAttributes(response);
 
           res.json(response);
           return cache.addAsync(filename, response);
@@ -82,6 +92,8 @@ router.route('/:id')
             speaker: results.records[0]
           }
 
+          cleanAttributes(response);
+
           res.json(response);
           return cache.addAsync(filename, response);
         })
@@ -113,6 +125,8 @@ router.get('/next/:next_records', function (req, res) {
           next_records: results.nextRecordsUrl,
           total_size: results.totalSize
         }
+
+        cleanAttributes(response);
 
         res.json(response);
         return cache.addAsync(filename, response);

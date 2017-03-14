@@ -38,6 +38,7 @@ jspm_packages
 
 # Environment Variables
 .env
+.env.swp
 
 # Cached models
 models/cache/*.json

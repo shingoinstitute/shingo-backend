@@ -8,6 +8,14 @@ var SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger;
 
+function cleanAttributes(obj) {
+  Object.keys(obj).forEach(function (key) {
+    key === 'attributes' && delete obj[key] ||
+      (obj[key] && typeof obj[key] === 'object') && cleanAttributes(obj[key])
+  });
+  return obj;
+};
+ 
 router.route('/')
   .get(function (req, res) {
     var filename = 'sf_days' + (req.query.event_id ? "_event_" + req.query.event_id : "");
@@ -23,6 +31,8 @@ router.route('/')
             totalSize: results.totalSize,
             next_records: results.nextRecordsUrl
           }
+
+          cleanAttributes(response);
 
           res.json(response);
           return cache.addAsync(filename, response);
@@ -80,6 +90,8 @@ router.route('/:id')
             day: results.records[0]
           }
 
+          cleanAttributes(response);
+
           res.json(response);
           return cache.addAsync(filename, response);
         })
@@ -111,6 +123,8 @@ router.get('/next/:next_records', function (req, res) {
           next_records: results.nextRecordsUrl,
           total_size: results.totalSize
         }
+
+        cleanAttributes(response);
 
         res.json(response);
         return cache.addAsync(filename, response);
