@@ -20,10 +20,8 @@ router.use(subdomain('insight', insight_route));
 router.use(subdomain('api', api_route));
 router.use(subdomain('support', support_route));
 
-// router.use(function(req, res){
-//   res.redirect('api.shingo.org');
-// });
-
-router.use('/', api_route);
+router.use(function(req, res){
+  res.redirect('api.shingo.org');
+});
 
 module.exports = router;
