@@ -6,15 +6,9 @@ var router = require('express').Router(),
   SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
   Logger = require(path.join(appRoot, 'Logger.js')),
-  logger = new Logger().logger;
+  logger = new Logger().logger,
+  cleaner = require('deep-cleaner');
 
-function cleanAttributes(obj) {
-  Object.keys(obj).forEach(function (key) {
-    key === 'attributes' && delete obj[key] ||
-      (obj[key] && typeof obj[key] === 'object') && cleanAttributes(obj[key])
-  });
-  return obj;
-};
  
 router.route('/')
   .get(function (req, res) {
@@ -33,7 +27,7 @@ router.route('/')
             next_records: results.nextRecordsUrl
           }
 
-          cleanAttributes(response);
+          cleaner(response, 'attributes');
 
           res.json(response);
           return cache.addAsync(filename, response);
@@ -91,7 +85,7 @@ router.route('/:id')
             hotel: results.records[0]
           }
 
-          cleanAttributes(response);
+          cleaner(response, 'attributes');
 
           res.json(response);
           return cache.addAsync(filename, response);
@@ -125,7 +119,7 @@ router.get('/next/:next_records', function (req, res) {
           total_size: results.totalSize
         }
 
-        cleanAttributes(response);
+        cleaner(response, 'attributes');
 
         res.json(response);
         return cache.addAsync(filename, response);

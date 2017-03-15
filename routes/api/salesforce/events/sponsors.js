@@ -6,22 +6,15 @@ var router = require('express').Router(),
   SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
   Logger = require(path.join(appRoot, 'Logger.js')),
-  logger = new Logger().logger;
-
-function cleanAttributes(obj) {
-  Object.keys(obj).forEach(function (key) {
-    key === 'attributes' && delete obj[key] ||
-      (obj[key] && typeof obj[key] === 'object') && cleanAttributes(obj[key])
-  });
-  return obj;
-};
+  logger = new Logger().logger,
+  cleaner = require('deep-cleaner');
  
 router.route('/')
   .get(function (req, res) {
     var filename = 'sf_sponsors' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Organization__r.Id, Organization__r.Name, Organization__r.Logo__c, Organization__r.App_Abstract__c, Banner_URL__c, Sponsor_Level__c, (SELECT Id, Name, Image_URL__c, Ad_Type__c FROM Sponsor_Ads__r) FROM Shingo_Sponsor__c" + (req.query.event_id ? " WHERE Id IN(SELECT Sponsor__c FROM Shingo_Event_Sponsor_Association__c WHERE Event__c='" + req.query.event_id + "')" : "");
+      var query = "SELECT Id, Organization__r.Id, Organization__r.Name, Organization__r.Logo__c, Organization__r.App_Abstract__c, Banner_URL__c, Sponsor_Level__c, (SELECT Id, Name, Event__c, Image_URL__c, Ad_Type__c FROM Sponsor_Ads__r) FROM Shingo_Sponsor__c" + (req.query.event_id ? " WHERE Id IN(SELECT Sponsor__c FROM Shingo_Event_Sponsor_Association__c WHERE Event__c='" + req.query.event_id + "')" : "");
 
       SF.queryAsync(query)
         .then(function (results) {
@@ -33,7 +26,7 @@ router.route('/')
             next_records: results.nextRecordsUrl
           }
 
-          cleanAttributes(response);
+          cleaner(response, 'attributes');
 
           res.json(response);
           return cache.addAsync(filename, response);
@@ -83,7 +76,7 @@ router.route('/:id')
     var filename = 'sf_sponsors_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Organization__r.Name, Organization__r.Logo__c, Organization__r.App_Abstract__c, Banner_URL__c, Sponsor_Level__c, (SELECT Id, Name, Sponsor_Name__c, Image_URL__c, Ad_Type__c, Event_Name__c FROM Sponsor_Ads__r WHERE Event_Name__c=''), (SELECT Id, Name, Image_URL__c, Ad_Type__c FROM Sponsor_Ads__r) FROM Shingo_Sponsor__c WHERE Id='" + req.params.id + "'";
+      var query = "SELECT Id, Organization__r.Name, Organization__r.Logo__c, Organization__r.App_Abstract__c, Banner_URL__c, Sponsor_Level__c, (SELECT Id, Name, Event__c, Sponsor__c, Image_URL__c, Ad_Type__c FROM Sponsor_Ads__r) FROM Shingo_Sponsor__c WHERE Id='" + req.params.id + "'";
       SF.queryAsync(query)
         .then(function (results) {
           var response = {
@@ -91,7 +84,7 @@ router.route('/:id')
             sponsor: results.records[0]
           }
 
-          cleanAttributes(response);
+          cleaner(response, 'attributes');
 
           res.json(response);
           return cache.addAsync(filename, response);
@@ -125,7 +118,7 @@ router.get('/next/:next_records', function (req, res) {
           total_size: results.totalSize
         }
 
-        cleanAttributes(response);
+        cleaner(response, 'attributes');
 
         res.json(response);
         return cache.addAsync(filename, response);
