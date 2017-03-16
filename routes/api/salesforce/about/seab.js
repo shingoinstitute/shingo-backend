@@ -2,18 +2,21 @@
 
 var router = require('express').Router(),
   Promise = require('bluebird'),
-  SF = Promise.promisifyAll(require('../../../../models/sf')),
-  cache = Promise.promisifyAll(require('../../../../models/cache'));
+  path = require('path'),
+  SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
+  cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
+  Logger = require(path.join(appRoot, 'Logger.js')),
+  logger = new Logger().logger;
 
 
 router.route('/')
-  .get(function(req, res, next) {
+  .get(function (req, res, next) {
     var filename = 'exec_board';
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
       var query = "SELECT Id, Name, Title, Account.Name, Photograph__c, Biography__c FROM Contact WHERE Shingo_Prize_Relationship__c INCLUDES('Board of Governors') ORDER BY LastName";
       SF.queryAsync(query)
-        .then(function(results) {
+        .then(function (results) {
           var response = {
             success: true,
             records: results.records,
@@ -25,10 +28,10 @@ router.route('/')
           res.json(response);
           return cache.addAsync(filename, response);
         })
-        .then(function() {
-          console.log("Cache updated!");
+        .then(function () {
+          logger.log("verbose", "Cache updated!");
         })
-        .catch(function(err) {
+        .catch(function (err) {
           res.json({
             success: false,
             error: err
@@ -39,13 +42,13 @@ router.route('/')
     }
   })
 
-router.get('/next/:next_records', function(req, res) {
+router.get('/next/:next_records', function (req, res) {
   var filename = 'exec_board_next_' + req.params.next_records;
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   if (cache.needsUpdated(filename, 30) || force_refresh) {
     var query = req.params.next_records;
     SF.queryAsync(query)
-      .then(function(results) {
+      .then(function (results) {
         var response = {
           success: true,
           examiners: results.records,
@@ -57,10 +60,10 @@ router.get('/next/:next_records', function(req, res) {
         res.json(response);
         return cache.addAsync(filename, response);
       })
-      .then(function() {
-        console.log("Cache updated!");
+      .then(function () {
+        logger.log("verbose", "Cache updated!");
       })
-      .catch(function(err) {
+      .catch(function (err) {
         res.json({
           success: false,
           error: err

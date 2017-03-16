@@ -2,29 +2,20 @@
 
 require('dotenv').load();
 
+// !!! Set a global variable for the app root
+// This way we don't have to play the ../../../ game
+var path = require('path'); 
+global.appRoot = path.resolve(__dirname);
+global.path = path;
 var express = require('express'),
-  path = require('path'),
   session = require('express-session'),
   bodyParser = require('body-parser'),
   config = require('./config'),
   MySQLStore = require('express-mysql-session')(session),
-  winston = require('winston'),
-  routes = require('./routes');
+  routes = require('./routes'),
+  Logger = require('./Logger'),
+  logger = new Logger().logger;
 
-winston.add(winston.transports.File, {
-  filename: config.name + '.log'
-});
-
-var logger = new(winston.Logger)({
-  transports: [
-    new(winston.transports.Console)(),
-    new(winston.transports.File)({
-      filename: config.name + '.log'
-    })
-  ]
-});
-
-console.log = logger.info;
 
 var app = express()
 app.set('port', config.port)
@@ -51,5 +42,5 @@ app.use(
 app.use('/', routes);
 
 app.listen(app.get('port'), function(){
-  console.log('Node app is running on port', app.get('port'));
+  logger.log("info", "Node app is running on port %s", app.get('port'));
 });

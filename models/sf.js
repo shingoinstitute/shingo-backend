@@ -1,5 +1,6 @@
 var jsforce = require('jsforce'),
-  config = require('../config.js')
+  path = require('path'),
+  config = require(path.join(appRoot, 'config.js'))
 
 var conn = new jsforce.Connection({loginUrl: config.sf.environment});
 
