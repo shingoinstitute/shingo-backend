@@ -9,7 +9,7 @@ var file = 'publication_awards';
 router.route('/')
 .get(function(req, res, next){
   var filename = file;
-  var query = "Select Id, Name, Public_Author_Name__c, Press_Release_Date__c FROM Publication_Award__c WHERE Published__c=true ORDER BY Press_Release_Date__c";
+  var query = "Select Id, Name, Public_Author_Name__c, Press_Release_Date__c FROM Publication_Award__c WHERE Published__c=true ORDER BY Press_Release_Date__c DESC";
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   q.getQuery(filename, query, force_refresh, res)
 })
