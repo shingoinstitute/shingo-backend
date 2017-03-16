@@ -15,7 +15,8 @@ var router = require('express').Router(),
   sponsor_route = require('./sponsors'),
   recipient_route = require('./recipients'),
   Logger = require(path.join(appRoot, 'Logger.js')),
-  logger = new Logger().logger;
+  logger = new Logger().logger,
+  cleaner = require('deep-cleaner');
 
 router.use('/speakers', speaker_route);
 router.use('/sessions', session_route);
@@ -31,8 +32,9 @@ router.route('/')
   .get(function (req, res, next) {
     var filename = 'sf_events';
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
-    if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Publish_to_Web_App__c, Display_Location__c, Primary_Color__c, Registration_Link__c, Sales_Text__c FROM Shingo_Event__c";
+    var publish_to_web = req.query.publish_to_web ? req.query.publish_to_web : false;
+    if (cache.needsUpdated(filename, 30) || force_refresh || publish_to_web) {
+      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Publish_to_Web_App__c, Display_Location__c FROM Shingo_Event__c" + (publish_to_web ? " WHERE Publish_to_Web_App__c=true": "");
       SF.queryAsync(query)
         .then(function (results) {
           var response = {
@@ -43,16 +45,22 @@ router.route('/')
             next_records: results.nextRecordsUrl
           }
 
+          cleaner(response, 'attributes');
+
           res.json(response);
-          return cache.addAsync(filename, response);
+          if (!publish_to_web) cache.addAsync(filename, response);
         })
         .then(function () {
-          logger.log("verbose", "Cache updated!");
+          if (!publish_to_web) logger.log("verbose", "Cache updated!");
         })
         .catch(function (err) {
           res.json({
             success: false,
-            error: err
+            error: {
+              message: err.message,
+              stack: err.stack,
+              name: err.name
+            }
           });
         });
     } else {
@@ -91,13 +99,15 @@ router.route('/:id')
     var filename = 'sf_events_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Sales_Text__c, Display_Location__c, Event_Manager__r.Name, Event_Website__c, Host_City__c, Host_Country__c, Maximum_Registration__c, Primary_Color__c, Printable_Agenda_URL__c, Publish_to_Web_App__c, Registration_Link__c, Video__c, Logo__c, Logo_Large__c, (SELECT Id, Name, Display_Name__c, Agenda_Date__c FROM Shingo_Day_Agendas__r), (SELECT Price__c, Name FROM Shingo_Prices__r WHERE Hotel__c=null), (SELECT Badge_Name__c, Badge_Title__c, Contact__r.Id, Contact__r.Name, Contact__r.Title, Contact__r.Account.Name FROM Shingo_Attendees__r) FROM Shingo_Event__c WHERE Id='" + req.params.id + "'";
+      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Sales_Text__c, Display_Location__c, Event_Manager__r.Name, Event_Website__c, Host_City__c, Host_Country__c, Maximum_Registration__c, Primary_Color__c, Printable_Agenda_URL__c, Publish_to_Web_App__c, Registration_Link__c, (SELECT Id, Name, Display_Name__c, Agenda_Date__c FROM Shingo_Day_Agendas__r), (SELECT Price__c, Name FROM Shingo_Prices__r WHERE Hotel__c=null), (SELECT Badge_Name__c, Badge_Title__c, Contact__r.Id, Contact__r.Name, Contact__r.Title, Contact__r.Account.Name FROM Shingo_Attendees__r), (SELECT Id, Name, Event__c, Sponsor__c, Image_URL__c, Ad_Type__c FROM Sponsor_Ads__r) FROM Shingo_Event__c WHERE Id='" + req.params.id + "'";
       SF.queryAsync(query)
         .then(function (results) {
           var response = {
             success: true,
             event: results.records[0]
           }
+
+          cleaner(response, 'attributes');
 
           res.json(response);
           return cache.addAsync(filename, response);
@@ -170,6 +180,8 @@ router.get('/next/:next_records', function (req, res) {
           next_records: results.nextRecordsUrl,
           total_size: results.totalSize
         }
+
+        cleaner(response, 'attributes');
 
         res.json(response);
         return cache.addAsync(filename, response);

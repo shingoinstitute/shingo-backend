@@ -6,8 +6,9 @@ var router = require('express').Router(),
   SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
   Logger = require(path.join(appRoot, 'Logger.js')),
-  logger = new Logger().logger;
-
+  logger = new Logger().logger,
+  cleaner = require('deep-cleaner');
+ 
 router.route('/')
   .get(function (req, res) {
     var filename = 'sf_sessions' + (req.query.agenda_id ? "_agenda_" + req.query.agenda_id : (req.query.event_id ? "_event_" + req.query.event_id : ""));
@@ -23,6 +24,8 @@ router.route('/')
             done: results.done,
             next_records: results.nextRecordsUrl
           }
+
+          cleaner(response, 'attributes');
 
           res.json(response);
           return cache.addAsync(filename, response);
@@ -80,6 +83,8 @@ router.route('/:id')
             session: results.records[0]
           }
 
+          cleaner(response, 'attributes');
+
           res.json(response);
           return cache.addAsync(filename, response);
         })
@@ -111,6 +116,8 @@ router.get('/next/:next_records', function (req, res) {
           next_records: results.nextRecordsUrl,
           total_size: results.totalSize
         }
+
+        cleaner(response, 'attributes');
 
         res.json(response);
         return cache.addAsync(filename, response);
