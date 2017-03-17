@@ -15,7 +15,7 @@ router.route('/')
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
       var query = "SELECT Id, Name, Speaker_Title__c, Picture_URL__c, Speaker_Biography__c, Contact__r.Email, Contact__r.LastName, Organization__r.Name, (SELECT Is_Keynote_Speaker__c FROM Session_Speaker_Associations__r WHERE Is_Keynote_Speaker__c=TRUE" + (req.query.event_id ? " AND Session__r.Agenda_Day__r.Event__c='" + req.query.event_id + "')" : ")") + "FROM Shingo_Speaker__c" + (req.query.session_id ? " WHERE Id IN(SELECT Speaker__c FROM Shingo_Session_Speaker_Association__c WHERE Session__c='" + req.query.session_id + "')" : (req.query.event_id ? " WHERE Id IN(SELECT Speaker__c FROM Shingo_Session_Speaker_Association__c WHERE Session__r.Agenda_Day__r.Event__c='" + req.query.event_id + "')" : ""));
-      logger.log("debug", "SF QUERY %s", query);
+      logger.log("debug", "SF Speakers query %s", query);
 
       SF.queryAsync(query)
         .then(function (results) {
@@ -77,7 +77,8 @@ router.route('/:id')
     var filename = 'sf_speakers_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Speaker_Title__c, Picture_URL__c, Speaker_Biography__c, Contact__r.Email, Organization__r.Name, Speaker_Permission_Form_URL__c, (SELECT Session__r.Id, Session__r.Session_Display_Name__c FROM Session_Speaker_Associations__r) FROM Shingo_Speaker__c WHERE Id='" + req.params.id + "'";
+      var query = "SELECT Id, Name, Speaker_Title__c, Picture_URL__c, Speaker_Biography__c, Contact__r.Email, Organization__r.Name, (SELECT Session__r.Id, Session__r.Session_Display_Name__c FROM Session_Speaker_Associations__r) FROM Shingo_Speaker__c WHERE Id='" + req.params.id + "'";
+      logger.log("debug", "SF Speaker(%s) query: %s", req.params.id, query);
       SF.queryAsync(query)
         .then(function (results) {
           var response = {
@@ -94,6 +95,7 @@ router.route('/:id')
           logger.log("verbose", "Cache updated!");
         })
         .catch(function (err) {
+          logger.log('error', JSON.stringify(err));
           res.json({
             success: false,
             error: err
