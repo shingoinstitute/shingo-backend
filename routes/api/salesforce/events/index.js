@@ -33,8 +33,9 @@ router.route('/')
     var filename = 'sf_events';
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     var publish_to_web = req.query.publish_to_web ? req.query.publish_to_web : false;
+    if (publish_to_web) filename + "_publish";
     if (cache.needsUpdated(filename, 30) || force_refresh || publish_to_web) {
-      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Publish_to_Web_App__c, Display_Location__c FROM Shingo_Event__c" + (publish_to_web ? " WHERE Publish_to_Web_App__c=true": "");
+      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Publish_to_Web_App__c, Display_Location__c, Primary_Color__c, Registration_Link__c, Sales_Text__c FROM Shingo_Event__c" + (publish_to_web ? " WHERE Publish_to_Web_App__c=true": "");
       SF.queryAsync(query)
         .then(function (results) {
           var response = {
@@ -48,10 +49,10 @@ router.route('/')
           cleaner(response, 'attributes');
 
           res.json(response);
-          if (!publish_to_web) cache.addAsync(filename, response);
+          return cache.addAsync(filename, response);
         })
         .then(function () {
-          if (!publish_to_web) logger.log("verbose", "Cache updated!");
+          logger.log("verbose", "Cache updated!");
         })
         .catch(function (err) {
           res.json({
