@@ -14,7 +14,7 @@ router.route('/')
     var filename = 'sf_sponsors' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Organization__r.Id, Organization__r.Name, Organization__r.Logo__c, Organization__r.App_Abstract__c, Banner_URL__c, Sponsor_Level__c, (SELECT Id, Name, Event__c, Image_URL__c, Ad_Type__c FROM Sponsor_Ads__r) FROM Shingo_Sponsor__c" + (req.query.event_id ? " WHERE Id IN(SELECT Sponsor__c FROM Shingo_Event_Sponsor_Association__c WHERE Event__c='" + req.query.event_id + "')" : "");
+      var query = "SELECT Id, Organization__r.Id, Organization__r.Name, Organization__r.Logo__c, Organization__r.App_Abstract__c, Banner_URL__c, Sponsor_Level__c, (SELECT Id, Name, Event__c, Image_URL__c, Ad_Type__c FROM Sponsor_Ads__r" + (req.query.event_id ? " WHERE Event__c='" + req.query.event_id + "'" : "" ) + ") FROM Shingo_Sponsor__c" + (req.query.event_id ? " WHERE Id IN(SELECT Sponsor__c FROM Shingo_Event_Sponsor_Association__c WHERE Event__c='" + req.query.event_id + "')" : "");
 
       SF.queryAsync(query)
         .then(function (results) {
