@@ -7,7 +7,7 @@ var router = require('express').Router(),
   Connection = models.Connection;
 
 router.get('/', function(req, res) {
-  var userId = parseInt(req.session.user_id);
+  var userId = parseInt(req.session.user.id);
 
   User.findById(userId, {
       include: [{
@@ -50,7 +50,7 @@ router.get('/', function(req, res) {
 });
 
 router.post('/request', function(req, res) {
-  var userId = parseInt(req.session.user_id);
+  var userId = parseInt(req.session.user.id);
   var connectionId = parseInt(req.body.connection_id);
 
   User.findById(userId).bind({})
@@ -83,7 +83,7 @@ router.post('/request', function(req, res) {
 });
 
 router.post('/reply', function(req, res) {
-  var userId = parseInt(req.session.user_id);
+  var userId = parseInt(req.session.user.id);
   var connectionId = parseInt(req.body.connection_id);
   var status = (req.body.accepted == "true" ? "Accepted" : "Rejected");
 
@@ -133,7 +133,7 @@ router.post('/reply', function(req, res) {
 });
 
 router.post('/remove', function(req, res) {
-  var userId = parseInt(req.session.user_id);
+  var userId = parseInt(req.session.user.id);
   var connectionId = parseInt(req.body.connection_id);
   User.findById(userId).bind({})
     .then(function(user) {

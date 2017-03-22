@@ -6,6 +6,20 @@ var config = {
   port: (process.env.PORT || 5000)
 }
 
+// Passport Strategy Configs
+config.LocalStrategyConfig = {
+  usernameField: process.env.LOCAL_STRATEGY_USERNAME || 'email',
+  passwordField: process.env.LOCAL_STRATEGY_PASSWORD || 'password'
+}
+
+config.LinkedInStrategyConfig = {
+  clientID: process.env.LINKEDIN_CLIENT_ID,
+  clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
+  callbackURL: (process.env.NODE_ENV == 'production' ? 'https://api.shingo.org' : 'http://localhost:' + config.port)  + '/user/auth/linkedin/callback',
+  scope: ['r_emailaddress', 'r_basicprofile'],
+  state: true
+}
+
 // MySQL Configurations
 config.mysql_connection = {
   session_database: {

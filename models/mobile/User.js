@@ -1,5 +1,7 @@
 'use strict';
 
+var passwordHash = require('password-hash');
+
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define('User', {
     email: {
@@ -16,6 +18,7 @@ module.exports = function(sequelize, DataTypes) {
     picture: DataTypes.STRING,
     phone: DataTypes.STRING,
     website: DataTypes.STRING,
+    lastLogin: DataTypes.DATE,
     optOut: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -43,6 +46,11 @@ module.exports = function(sequelize, DataTypes) {
           through: models.UserHasMessages,
           foreignKey: 'RecipientId'
         })
+      }
+    },
+    instanceMethods: {
+      verifyPassword: function(password){
+        return passwordHash.verify(password, this.password)
       }
     }
   });

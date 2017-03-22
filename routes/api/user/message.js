@@ -10,7 +10,7 @@ var router = require('express').Router(),
   logger = new Logger().logger;
 
 router.get('/', function(req, res) {
-  var userId = parseInt(req.session.user_id);
+  var userId = parseInt(req.session.user.id);
 
   User.findById(userId, {
       include: [{
@@ -39,7 +39,7 @@ router.get('/', function(req, res) {
 });
 
 router.post('/send', function(req, res) {
-  var userId = parseInt(req.session.user_id);
+  var userId = parseInt(req.session.user.id);
   var recipients = JSON.parse(req.body.recipients);
 
   User.findAll({
@@ -76,7 +76,7 @@ router.post('/send', function(req, res) {
 });
 
 router.post('/status', function(req, res) {
-  var userId = parseInt(req.session.user_id);
+  var userId = parseInt(req.session.user.id);
   var messageId = parseInt(req.body.message_id);
 
   UserHasMessages.findOne({
@@ -112,7 +112,7 @@ router.post('/status', function(req, res) {
 });
 
 router.post('/delete', function(req, res) {
-  var userId = parseInt(req.session.user_id);
+  var userId = parseInt(req.session.user.id);
   var messageId = parseInt(req.body.message_id);
 
   UserHasMessages.findOne({
