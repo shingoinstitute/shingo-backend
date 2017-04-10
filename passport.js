@@ -3,6 +3,7 @@
 var LocalStrategy = require('passport-local').Strategy,
     LinkedInStrategy = require('passport-linkedin-oauth2').Strategy,
     User = require(path.join(appRoot, 'models/mobile')).User,
+    cleaner = require('deep-cleaner'),
     config = require(path.join(appRoot, 'config.js')),
     Logger = require(path.join(appRoot, 'Logger.js')),
     logger = new Logger().logger;
@@ -19,6 +20,7 @@ module.exports = function (passport) {
                     return user.save();
                 })
                 .then(function(user){
+                    cleaner(user.toJSON(), ['password']);
                     return done(null, user);
                 })
                 .catch(function (err) {

@@ -1,0 +1,395 @@
+{
+    "extension": "linecount",
+    "version": "0.1.6",
+    "workspace": "/home/dustinehoman/Documents/shingo-backend",
+    "linecount": [
+        {
+            "version": "0.1.6",
+            "counttime": "2017-03-27 08:15:02",
+            "filesum": 63,
+            "codesum": 3815,
+            "commentsum": 24,
+            "blanksum": 447,
+            "filelist": [
+                {
+                    "blank": 12,
+                    "code": 32,
+                    "comment": 6,
+                    "filename": ".gitignore"
+                },
+                {
+                    "blank": 0,
+                    "code": 39,
+                    "comment": 0,
+                    "filename": "package.json"
+                },
+                {
+                    "blank": 0,
+                    "code": 25,
+                    "comment": 1,
+                    "filename": ".env"
+                },
+                {
+                    "blank": 6,
+                    "code": 64,
+                    "comment": 4,
+                    "filename": "config.js"
+                },
+                {
+                    "blank": 47,
+                    "code": 219,
+                    "comment": 3,
+                    "filename": "LICENSE"
+                },
+                {
+                    "blank": 16,
+                    "code": 63,
+                    "comment": 2,
+                    "filename": "app.js"
+                },
+                {
+                    "blank": 5,
+                    "code": 15,
+                    "comment": 0,
+                    "filename": "routes/index.js"
+                },
+                {
+                    "blank": 14,
+                    "code": 73,
+                    "comment": 0,
+                    "filename": "routes/api/index.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/about/index.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 31,
+                    "comment": 7,
+                    "filename": "Logger.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 70,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/about/staff.js"
+                },
+                {
+                    "blank": 13,
+                    "code": 163,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/about/examiner.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 72,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/about/academy.js"
+                },
+                {
+                    "blank": 7,
+                    "code": 70,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/about/seab.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 69,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/workshops/index.js"
+                },
+                {
+                    "blank": 13,
+                    "code": 126,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/events/days.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 12,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/index.js"
+                },
+                {
+                    "blank": 14,
+                    "code": 126,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/events/recipients.js"
+                },
+                {
+                    "blank": 13,
+                    "code": 126,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/events/sessions.js"
+                },
+                {
+                    "blank": 16,
+                    "code": 127,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/events/rooms.js"
+                },
+                {
+                    "blank": 18,
+                    "code": 186,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/events/index.js"
+                },
+                {
+                    "blank": 13,
+                    "code": 126,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/events/exhibitors.js"
+                },
+                {
+                    "blank": 15,
+                    "code": 126,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/events/hotels.js"
+                },
+                {
+                    "blank": 8,
+                    "code": 29,
+                    "comment": 1,
+                    "filename": "routes/api/salesforce/awards/publication.js"
+                },
+                {
+                    "blank": 14,
+                    "code": 129,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/events/speakers.js"
+                },
+                {
+                    "blank": 14,
+                    "code": 126,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/events/sponsors.js"
+                },
+                {
+                    "blank": 13,
+                    "code": 127,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/events/venues.js"
+                },
+                {
+                    "blank": 8,
+                    "code": 94,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/affiliates/facilitators.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 39,
+                    "comment": 0,
+                    "filename": "routes/api/support/feedback.js"
+                },
+                {
+                    "blank": 21,
+                    "code": 224,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/affiliates/index.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 38,
+                    "comment": 0,
+                    "filename": "routes/api/support/bugs.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 9,
+                    "comment": 0,
+                    "filename": "routes/api/user/auth/index.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 25,
+                    "comment": 0,
+                    "filename": "routes/api/user/auth/linkedin.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "routes/api/salesforce/awards/index.js"
+                },
+                {
+                    "blank": 4,
+                    "code": 55,
+                    "comment": 0,
+                    "filename": "routes/api/user/auth/local.js"
+                },
+                {
+                    "blank": 9,
+                    "code": 177,
+                    "comment": 0,
+                    "filename": "routes/api/user/connection.js"
+                },
+                {
+                    "blank": 10,
+                    "code": 132,
+                    "comment": 0,
+                    "filename": "routes/api/user/message.js"
+                },
+                {
+                    "blank": 9,
+                    "code": 90,
+                    "comment": 0,
+                    "filename": "routes/api/user/index.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 6,
+                    "comment": 0,
+                    "filename": "routes/api/user/cvent.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 19,
+                    "comment": 0,
+                    "filename": "models/sf.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 36,
+                    "comment": 0,
+                    "filename": "models/website/index.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 9,
+                    "comment": 0,
+                    "filename": "routes/api/support/index.js"
+                },
+                {
+                    "blank": 7,
+                    "code": 26,
+                    "comment": 0,
+                    "filename": "models/cache/index.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": "models/support/Bug.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "models/support/Status.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "models/support/StatType.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "models/support/Priority.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 22,
+                    "comment": 0,
+                    "filename": "models/support/Ticket.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 15,
+                    "comment": 0,
+                    "filename": "models/support/Comment.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "models/support/Category.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 11,
+                    "comment": 0,
+                    "filename": "models/support/Feeback.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "models/support/User.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "models/support/Role.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 48,
+                    "comment": 0,
+                    "filename": "models/query.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 36,
+                    "comment": 0,
+                    "filename": "models/mobile/index.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 56,
+                    "comment": 0,
+                    "filename": "models/mobile/User.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "models/support/Statistic.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": "models/mobile/Connection.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": "models/mobile/UserHasMessages.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 28,
+                    "comment": 0,
+                    "filename": "models/mobile/Message.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 71,
+                    "comment": 0,
+                    "filename": "passport.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "README.md"
+                },
+                {
+                    "blank": 5,
+                    "code": 33,
+                    "comment": 0,
+                    "filename": "models/support/index.js"
+                }
+            ]
+        }
+    ]
+}

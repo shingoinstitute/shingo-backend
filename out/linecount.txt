@@ -1,0 +1,75 @@
+===============================================================================
+EXTENSION NAME : linecount
+EXTENSION VERSION : 0.1.6
+-------------------------------------------------------------------------------
+count time : 2017-03-27 08:15:03
+count workspace : /home/dustinehoman/Documents/shingo-backend
+total files : 63
+total code lines : 3815
+total comment lines : 24
+total blank lines : 447
+
+.gitignore, code is 32, comment is 6, blank is 12.
+package.json, code is 39, comment is 0, blank is 0.
+.env, code is 25, comment is 1, blank is 0.
+config.js, code is 64, comment is 4, blank is 6.
+LICENSE, code is 219, comment is 3, blank is 47.
+app.js, code is 63, comment is 2, blank is 16.
+routes/index.js, code is 15, comment is 0, blank is 5.
+routes/api/index.js, code is 73, comment is 0, blank is 14.
+routes/api/salesforce/about/index.js, code is 10, comment is 0, blank is 2.
+Logger.js, code is 31, comment is 7, blank is 3.
+routes/api/salesforce/about/staff.js, code is 70, comment is 0, blank is 6.
+routes/api/salesforce/about/examiner.js, code is 163, comment is 0, blank is 13.
+routes/api/salesforce/about/academy.js, code is 72, comment is 0, blank is 6.
+routes/api/salesforce/about/seab.js, code is 70, comment is 0, blank is 7.
+routes/api/salesforce/workshops/index.js, code is 69, comment is 0, blank is 6.
+routes/api/salesforce/events/days.js, code is 126, comment is 0, blank is 13.
+routes/api/salesforce/index.js, code is 12, comment is 0, blank is 2.
+routes/api/salesforce/events/recipients.js, code is 126, comment is 0, blank is 14.
+routes/api/salesforce/events/sessions.js, code is 126, comment is 0, blank is 13.
+routes/api/salesforce/events/rooms.js, code is 127, comment is 0, blank is 16.
+routes/api/salesforce/events/index.js, code is 186, comment is 0, blank is 18.
+routes/api/salesforce/events/exhibitors.js, code is 126, comment is 0, blank is 13.
+routes/api/salesforce/events/hotels.js, code is 126, comment is 0, blank is 15.
+routes/api/salesforce/awards/publication.js, code is 29, comment is 1, blank is 8.
+routes/api/salesforce/events/speakers.js, code is 129, comment is 0, blank is 14.
+routes/api/salesforce/events/sponsors.js, code is 126, comment is 0, blank is 14.
+routes/api/salesforce/events/venues.js, code is 127, comment is 0, blank is 13.
+routes/api/salesforce/affiliates/facilitators.js, code is 94, comment is 0, blank is 8.
+routes/api/support/feedback.js, code is 39, comment is 0, blank is 2.
+routes/api/salesforce/affiliates/index.js, code is 224, comment is 0, blank is 21.
+routes/api/support/bugs.js, code is 38, comment is 0, blank is 2.
+routes/api/user/auth/index.js, code is 9, comment is 0, blank is 3.
+routes/api/user/auth/linkedin.js, code is 25, comment is 0, blank is 6.
+routes/api/salesforce/awards/index.js, code is 4, comment is 0, blank is 2.
+routes/api/user/auth/local.js, code is 55, comment is 0, blank is 4.
+routes/api/user/connection.js, code is 177, comment is 0, blank is 9.
+routes/api/user/message.js, code is 132, comment is 0, blank is 10.
+routes/api/user/index.js, code is 90, comment is 0, blank is 9.
+routes/api/user/cvent.js, code is 6, comment is 0, blank is 3.
+models/sf.js, code is 19, comment is 0, blank is 2.
+models/website/index.js, code is 36, comment is 0, blank is 6.
+routes/api/support/index.js, code is 9, comment is 0, blank is 3.
+models/cache/index.js, code is 26, comment is 0, blank is 7.
+models/support/Bug.js, code is 10, comment is 0, blank is 2.
+models/support/Status.js, code is 14, comment is 0, blank is 2.
+models/support/StatType.js, code is 13, comment is 0, blank is 2.
+models/support/Priority.js, code is 14, comment is 0, blank is 2.
+models/support/Ticket.js, code is 22, comment is 0, blank is 2.
+models/support/Comment.js, code is 15, comment is 0, blank is 2.
+models/support/Category.js, code is 14, comment is 0, blank is 2.
+models/support/Feeback.js, code is 11, comment is 0, blank is 2.
+models/support/User.js, code is 17, comment is 0, blank is 2.
+models/support/Role.js, code is 13, comment is 0, blank is 2.
+models/query.js, code is 48, comment is 0, blank is 6.
+models/mobile/index.js, code is 36, comment is 0, blank is 6.
+models/mobile/User.js, code is 56, comment is 0, blank is 3.
+models/support/Statistic.js, code is 14, comment is 0, blank is 2.
+models/mobile/Connection.js, code is 10, comment is 0, blank is 2.
+models/mobile/UserHasMessages.js, code is 10, comment is 0, blank is 2.
+models/mobile/Message.js, code is 28, comment is 0, blank is 2.
+passport.js, code is 71, comment is 0, blank is 6.
+README.md, code is 2, comment is 0, blank is 0.
+models/support/index.js, code is 33, comment is 0, blank is 5.
+===============================================================================

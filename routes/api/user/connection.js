@@ -3,16 +3,22 @@
 var router = require('express').Router(),
   path = require('path'),
   models = require(path.join(appRoot, 'models/mobile')),
+  cleaner = require('deep-cleaner'),
+  Logger = require(path.join(appRoot, 'Logger.js')),
+  logger = new Logger().logger,
   User = models.User,
   Connection = models.Connection;
 
-router.get('/', function(req, res) {
+router.get('/', function (req, res, next) {
   var userId = parseInt(req.session.user.id);
 
   User.findById(userId, {
       include: [{
         model: User,
         as: 'children',
+        attributes: {
+          exclude: ['password']
+        },
         through: {
           where: {
             status: {
@@ -23,6 +29,9 @@ router.get('/', function(req, res) {
       }, {
         model: User,
         as: 'parents',
+        attributes: {
+          exclude: ['password']
+        },
         through: {
           where: {
             status: {
@@ -32,29 +41,25 @@ router.get('/', function(req, res) {
         }
       }]
     }).bind({})
-    .then(function(user) {
+    .then(function (user) {
       var connections = user.children.concat(user.parents);
       res.json({
         success: true,
         connections: connections
       });
     })
-    .catch(function(err) {
-      res.json({
-        success: false,
-        error: {
-          message: "Couldn't get users for user id " + userId
-        }
-      });
+    .catch(function (err) {
+      logger.log('error', err);
+      next(err);
     })
 });
 
-router.post('/request', function(req, res) {
+router.post('/request', function (req, res, next) {
   var userId = parseInt(req.session.user.id);
   var connectionId = parseInt(req.body.connection_id);
 
   User.findById(userId).bind({})
-    .then(function(user) {
+    .then(function (user) {
       this.parentUser = user;
       return User.findById(connectionId, {
         attributes: {
@@ -62,52 +67,51 @@ router.post('/request', function(req, res) {
         }
       });
     })
-    .then(function(user) {
+    .then(function (user) {
       this.childUser = user;
       return this.parentUser.addChild(user);
     })
-    .then(function() {
+    .then(function () {
       res.json({
         success: true,
         user: this.childUser
       });
     })
-    .catch(function(err) {
-      res.json({
-        success: false,
-        error: {
-          message: "Error requesting connection"
-        }
-      });
+    .catch(function (err) {
+      logger.log('error', err);
+      next(err);
     });
 });
 
-router.post('/reply', function(req, res) {
+router.post('/reply', function (req, res, next) {
   var userId = parseInt(req.session.user.id);
   var connectionId = parseInt(req.body.connection_id);
   var status = (req.body.accepted == "true" ? "Accepted" : "Rejected");
 
   User.findById(userId).bind({})
-    .then(function(user) {
+    .then(function (user) {
       this.user = user;
       return user.getParents({
         where: {
           id: connectionId
+        },
+        attributes: {
+          exclude: ['password']
         }
       })
     })
-    .then(function(parents) {
+    .then(function (parents) {
       parents[0].Connection.status = status;
       return parents[0].Connection.save();
     })
-    .then(function() {
+    .then(function () {
       return this.user.getChildren({
         attributes: {
           exclude: ['password']
         }
       });
     })
-    .then(function(children) {
+    .then(function (children) {
       this.children = children
       return this.user.getParents({
         attributes: {
@@ -115,28 +119,24 @@ router.post('/reply', function(req, res) {
         }
       });
     })
-    .then(function(parents) {
+    .then(function (parents) {
       var connections = this.children.concat(parents);
       res.json({
         success: true,
         connections: connections
       })
     })
-    .catch(function(err) {
-      res.json({
-        success: false,
-        error: {
-          message: "Error replying to connection"
-        }
-      });
+    .catch(function (err) {
+      logger.log('error', err);
+      next(err);
     });
 });
 
-router.post('/remove', function(req, res) {
+router.post('/remove', function (req, res, next) {
   var userId = parseInt(req.session.user.id);
   var connectionId = parseInt(req.body.connection_id);
   User.findById(userId).bind({})
-    .then(function(user) {
+    .then(function (user) {
       this.user = user;
       return user.getChildren({
         where: {
@@ -144,14 +144,14 @@ router.post('/remove', function(req, res) {
         }
       });
     })
-    .then(function(children) {
+    .then(function (children) {
       this.children = children;
       return this.user.getParents({
         where: {
           id: connectionId
         }
       });
-    }).then(function(parents) {
+    }).then(function (parents) {
       var connections = this.children.concat(parents);
       for (var i = 0; i < connections.length; i++) {
         if (connections[i].id == connectionId) {
@@ -164,26 +164,22 @@ router.post('/remove', function(req, res) {
           exclude: ['password']
         }
       });
-    }).then(function(children) {
+    }).then(function (children) {
       this.children = children;
       return this.user.getParents({
         attributes: {
           exclude: ['password']
         }
       });
-    }).then(function(parents) {
+    }).then(function (parents) {
       var connections = this.children.concat(parents);
       res.json({
         success: true,
         connections: connections
       });
-    }).catch(function(err) {
-      res.json({
-        success: false,
-        error: {
-          message: "Couldn't remove connection"
-        }
-      });
+    }).catch(function (err) {
+      logger.log('error', err);
+      next(err);
     });
 });
 
