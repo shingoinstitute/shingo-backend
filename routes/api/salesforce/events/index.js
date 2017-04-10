@@ -5,6 +5,7 @@ var router = require('express').Router(),
   path = require('path'),
   SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
+  qb = require(path.join(appRoot, 'models/QueryBuilder')),
   speaker_route = require('./speakers'),
   session_route = require('./sessions'),
   day_route = require('./days'),
@@ -35,8 +36,22 @@ router.route('/')
     var publish_to_web = req.query.publish_to_web ? req.query.publish_to_web : false;
     if (publish_to_web) filename + "_publish";
     if (cache.needsUpdated(filename, 30) || force_refresh || publish_to_web) {
-      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Publish_to_Web_App__c, Display_Location__c, Primary_Color__c, Registration_Link__c, Sales_Text__c FROM Shingo_Event__c" + (publish_to_web ? " WHERE Publish_to_Web_App__c=true": "");
-      SF.queryAsync(query)
+      var query = new qb().select()
+                    .field('Id')
+                    .field('Name')
+                    .field('Start_Date__c')
+                    .field('End_Date__c')
+                    .field('Event_Type__c')
+                    .field('Banner_URL__c')
+                    .field('Publish_to_Web_App__c')
+                    .field('Display_Location__c')
+                    .field('Primary_Color__c')
+                    .field('Registration_Link__c')
+                    .field('Sales_Text__c')
+                    .from('Shingo_Event__c')
+                    .where((publish_to_web ? " WHERE Publish_to_Web_App__c=true": ""));
+      logger.log('debug', "SF Query: " + query.toString());              
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,
@@ -100,8 +115,67 @@ router.route('/:id')
     var filename = 'sf_events_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Start_Date__c, End_Date__c, Event_Type__c, Banner_URL__c, Sales_Text__c, Display_Location__c, Event_Manager__r.Name, Event_Website__c, Host_City__c, Host_Country__c, Maximum_Registration__c, Primary_Color__c, Printable_Agenda_URL__c, Publish_to_Web_App__c, Registration_Link__c, (SELECT Id, Name, Display_Name__c, Agenda_Date__c FROM Shingo_Day_Agendas__r), (SELECT Price__c, Name FROM Shingo_Prices__r WHERE Hotel__c=null), (SELECT Badge_Name__c, Badge_Title__c, Contact__r.Id, Contact__r.Name, Contact__r.Title, Contact__r.Account.Name FROM Shingo_Attendees__r), (SELECT Id, Name, Event__c, Sponsor__c, Image_URL__c, Ad_Type__c FROM Sponsor_Ads__r) FROM Shingo_Event__c WHERE Id='" + req.params.id + "'";
-      SF.queryAsync(query)
+      var query = new qb().select()
+                  .field('App_Menu_Items__c')
+                  .field('Banner_URL__c')
+                  .field('Display_Location__c')
+                  .field('End_Date__c')
+                  .field('Event_Manager__r.Name')
+                  .field('Event_Type__c')
+                  .field('Event_Website__c')
+                  .field('Host_City__c')
+                  .field('Host_Country__c')
+                  .field('Id')
+                  .field('Logo_Large__c')
+                  .field('Logo__c')
+                  .field('Maximum_Registration__c')
+                  .field('Name')
+                  .field('Primary_Color__c')
+                  .field('Printable_Agenda_URL__c')
+                  .field('Publish_to_Web_App__c')
+                  .field('Registration_Link__c')
+                  .field('Sales_Text__c')
+                  .field('Start_Date__c')
+                  .field('Video__c')
+                  .subQuery(
+                    new qb().select()
+                    .field('Id')
+                    .field('Name')
+                    .field('Display_Name__c')
+                    .field('Agenda_Date__c')
+                    .from('Shingo_Day_Agendas__r')
+                  )
+                  .subQuery(
+                    new qb().select()
+                    .field('Price__c')
+                    .field('Name')
+                    .from('Shingo_Prices__r')
+                    .where('Hotel__c=null')
+                  )
+                  .subQuery(
+                    new qb().select()
+                    .field('Badge_Name__c')
+                    .field('Badge_Title__c')
+                    .field('Contact__r.Id')
+                    .field('Contact__r.Name')
+                    .field('Contact__r.Title')
+                    .field('Contact__r.Account.Name')
+                    .from('Shingo_Attendees__r')
+                  )
+                  .subQuery(
+                    new qb().select()
+                    .field('Id')
+                    .field('Name')
+                    .field('Event__c')
+                    .field('Sponsor__c')
+                    .field('Image_URL__c')
+                    .field('Ad_Type__c')
+                    .from('Sponsor_Ads__r')
+                  )
+                  .from('Shingo_Event__c')
+                  .where('Id=\'' + req.params.id + '\'');
+      logger.log('debug', "SF Query: " + query.toString());
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,
