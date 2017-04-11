@@ -51,18 +51,21 @@ function QueryBuilder() {
         return this;
     }
     if(!clauses.length) throw Error("Bad query format!");
-    clauses.forEach(function(clause, index){
-      for(var key in clause){
-        if(clause.hasOwnProperty(key)){
-          this.queryBuilder.query.clause += "(";
-          clause[key].forEach(function(expr, i){
-            this.queryBuilder.query.clause += expr + (i < clause[key].length - 1 ? " " + key + " " : "");
-          });
-          this.queryBuilder.query.clause += ") ";
+    var i = 0;
+    for(var index in clauses){
+      for(var key in clauses[index]){
+        if(clauses[index].hasOwnProperty(key)){
+          this.query.clause += "(";
+
+          for(var i in clauses[index][key]){
+            this.query.clause += clauses[index][key][i] + (i < clauses[index][key].length - 1 ? " " + key + " " : "");
+          }
+
+          this.query.clause += ") ";
         }
       }
-      this.queryBuilder.query.clause += (index < clauses.length - 1 ? " AND " : "");
-    });
+      this.query.clause += (index < clauses.length - 1 ? " AND " : "");
+    }
 
     return this;
   };

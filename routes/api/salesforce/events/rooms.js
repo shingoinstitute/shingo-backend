@@ -5,19 +5,28 @@ var router = require('express').Router(),
   path = require('path'),
   SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
+  qb = require(path.join(appRoot, 'models/QueryBuilder')),
   Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger,
   cleaner = require('deep-cleaner');
  
 router.route('/')
   .get(function (req, res) {
-    console.log("Rooms route");
+    var pattern = /a[\w\d]{14,17}/;
+    if(req.query.venue_id && !pattern.test(req.query.venue_id)) throw Error('Invalid Salesforce Id: ', req.query.venue_id);
     var filename = 'sf_rooms' + (req.query.venue_id ? "_venue_" + req.query.venue_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Associated_Venue__r.Name FROM Shingo_Room__c" + (req.query.venue_id ? " WHERE Associated_Venue__c='" + req.query.venue_id + "'" : "");
+      var query = new qb().select()
+                  .field('Associated_Venue__r.Name')
+                  .field('Id')
+                  .field('Name')
+                  .from('Shingo_Room__c')
+                  .where((req.query.venue_id ? 'Associated_Venue__c=\'' + req.query.venue_id + '\'' : ''));
 
-      SF.queryAsync(query)
+      logger.log("debug", "SF QUERY %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,
@@ -74,12 +83,23 @@ router.route('/')
 
 router.route('/:id')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if(!pattern.test(req.params.id)) throw Error('Invalid Salesforce Id: ', req.params.id);
     var filename = 'sf_rooms_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Associated_Venue__r.Id, Associated_Venue__r.Name, Map_Coordinate__c FROM Shingo_Room__c WHERE Id='" + req.params.id + "'";
+      var query = new qb().select()
+                  .field('Associated_Venue__r.Id')
+                  .field('Associated_Venue__r.Name')
+                  .field('Id')
+                  .field('Map_Coordinate__c')
+                  .field('Name')
+                  .from('Shingo_Room__c')
+                  .where('Id=\'' + req.params.id + '\'');
 
-      SF.queryAsync(query)
+      logger.log("debug", "SF QUERY %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,
