@@ -5,17 +5,33 @@ var router = require('express').Router(),
   path = require('path');
 var SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
+  qb = require(path.join(appRoot, 'models/QueryBuilder')),
   Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger,
   cleaner = require('deep-cleaner');
- 
+
 router.route('/')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if (req.query.event_id && !pattern.test(req.query.event_id)) throw Error('Invalid Salesforce Id: ', req.query.event_id);
     var filename = 'sf_days' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "Select Id, Name, Display_Name__c, Agenda_Date__c, (SELECT Id FROM Shingo_Sessions__r) FROM Shingo_Agenda_Day__c" + (req.query.event_id ? " WHERE Event__c='" + req.query.event_id + "'" : "");
-      SF.queryAsync(query)
+      var query = new qb().select()
+        .field('Agenda_Date__c')
+        .field('Display_Name__c')
+        .field('Id')
+        .field('Name')
+        .subQuery(new qb().select()
+          .field('Id')
+          .from('Shingo_Sessions__r')
+        )
+        .from('Shingo_Agenda_Day__c')
+        .where((req.query.event_id ? 'Event__c=\'' + req.query.event_id + '\'' : ''));
+
+      logger.log("debug", "SF QUERY %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,
@@ -72,11 +88,31 @@ router.route('/')
 
 router.route('/:id')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if (!pattern.test(req.params.id)) throw Error('Invalid Salesforce Id: ', req.params.id);
     var filename = 'sf_days_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "Select Id, Name, Display_Name__c, (SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Session_Type__c FROM Shingo_Sessions__r) FROM Shingo_Agenda_Day__c WHERE Id='" + req.params.id + "'";
-      SF.queryAsync(query)
+      var query = new qb().select()
+        .field('Agenda_Date__c')
+        .field('Display_Name__c')
+        .field('Id')
+        .field('Name')
+        .subQuery(new qb().select()
+          .field('End_Date_Time__c')
+          .field('Id')
+          .field('Name')
+          .field('Session_Display_Name__c')
+          .field('Session_Type__c')
+          .field('Start_Date_Time__c')
+          .from('Shingo_Sessions__r')
+        )
+        .from('Shingo_Agenda_Day__c')
+        .where('Id=\'' + req.params.id + '\'');
+
+      logger.log("debug", "SF QUERY %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,

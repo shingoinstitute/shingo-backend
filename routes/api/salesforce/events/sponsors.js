@@ -5,18 +5,46 @@ var router = require('express').Router(),
   path = require('path'),
   SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
+  qb = require(path.join(appRoot, 'models/QueryBuilder')),
   Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger,
   cleaner = require('deep-cleaner');
  
 router.route('/')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if(req.query.event_id && !pattern.test(req.query.event_id)) throw Error('Invalid Salesforce Id: ', req.query.event_id);
     var filename = 'sf_sponsors' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Organization__r.Id, Organization__r.Name, Organization__r.Logo__c, Organization__r.App_Abstract__c, Banner_URL__c, Sponsor_Level__c, (SELECT Id, Name, Event__c, Image_URL__c, Ad_Type__c FROM Sponsor_Ads__r" + (req.query.event_id ? " WHERE Event__c='" + req.query.event_id + "'" : "" ) + ") FROM Shingo_Sponsor__c" + (req.query.event_id ? " WHERE Id IN(SELECT Sponsor__c FROM Shingo_Event_Sponsor_Association__c WHERE Event__c='" + req.query.event_id + "')" : "");
+      var eventsSub = new qb().select()
+                      .field('Sponsor__c')
+                      .from('Shingo_Event_Sponsor_Association__c')
+                      .where("Event__c='" + req.query.event_id + "'");
 
-      SF.queryAsync(query)
+      var query = new qb().select()
+                  .field('Banner_URL__c')
+                  .field('Id')
+                  .field('Organization__r.App_Abstract__c')
+                  .field('Organization__r.Id')
+                  .field('Organization__r.Logo__c')
+                  .field('Organization__r.Name')
+                  .field('Sponsor_Level__c')
+                  .subQuery(new qb().select()
+                            .field('Ad_Type__c')
+                            .field('Event__c')
+                            .field('Id')
+                            .field('Image_URL__c')
+                            .field('Name')
+                            .from('Sponsor_Ads__r')
+                            .where((req.query.event_id ? "Event__c='" + req.query.event_id + "'" : ""))
+                  )
+                  .from('Shingo_Sponsor__c')
+                  .where((req.query.event_id ? "Id IN(" + eventsSub.toString() + ")" : ""))
+
+      logger.log("debug", "SF Sponsors query %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,
@@ -73,11 +101,32 @@ router.route('/')
 
 router.route('/:id')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if(!pattern.test(req.params.id)) throw Error('Invalid Salesforce Id: ', req.params.id);
     var filename = 'sf_sponsors_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Organization__r.Name, Organization__r.Logo__c, Organization__r.App_Abstract__c, Banner_URL__c, Sponsor_Level__c, (SELECT Id, Name, Event__c, Sponsor__c, Image_URL__c, Ad_Type__c FROM Sponsor_Ads__r) FROM Shingo_Sponsor__c WHERE Id='" + req.params.id + "'";
-      SF.queryAsync(query)
+      var query = new qb().select()
+                  .field('Banner_URL__c')
+                  .field('Id')
+                  .field('Organization__r.App_Abstract__c')
+                  .field('Organization__r.Logo__c')
+                  .field('Organization__r.Name')
+                  .field('Sponsor_Level__c')
+                  .subQuery(new qb().select()
+                            .field('Ad_Type__c')
+                            .field('Event__c')
+                            .field('Id')
+                            .field('Image_URL__c')
+                            .field('Name')
+                            .field('Sponsor__c')
+                            .from('Sponsor_Ads__r'))
+                  .from('Shingo_Sponsor__c')
+                  .where('Id=\'' + req.params.id + '\'');
+
+      logger.log("debug", "SF Sponsor(%s) query: %s", req.params.id, query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,

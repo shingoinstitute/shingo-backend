@@ -34,8 +34,8 @@ router.route('/')
     var filename = 'sf_events';
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     var publish_to_web = req.query.publish_to_web ? req.query.publish_to_web : false;
-    if (publish_to_web) filename + "_publish";
-    if (cache.needsUpdated(filename, 30) || force_refresh || publish_to_web) {
+    if (publish_to_web) filename += "_publish";
+    if (cache.needsUpdated(filename, 30) || force_refresh) {
       var query = new qb().select()
                     .field('Id')
                     .field('Name')
@@ -49,7 +49,7 @@ router.route('/')
                     .field('Registration_Link__c')
                     .field('Sales_Text__c')
                     .from('Shingo_Event__c')
-                    .where((publish_to_web ? " WHERE Publish_to_Web_App__c=true": ""));
+                    .where((publish_to_web ? "Publish_to_Web_App__c=true": ""));
       logger.log('debug', "SF Query: " + query.toString());              
       SF.queryAsync(query.toString())
         .then(function (results) {
@@ -112,6 +112,8 @@ router.route('/')
 
 router.route('/:id')
   .get(function (req, res, next) {
+    var pattern = /a[\w\d]{14,17}/;
+    if(!pattern.test(req.params.id)) throw Error('Invalid Salesforce Id: ', req.params.id);
     var filename = 'sf_events_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
