@@ -5,18 +5,35 @@ var router = require('express').Router(),
   path = require('path'),
   SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
+  qb = require(path.join(appRoot, 'models/QueryBuilder')),
   Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger,
   cleaner = require('deep-cleaner');
  
 router.route('/')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if(req.query.event_id && !pattern.test(req.query.event_id)) throw Error('Invalid Salesforce Id: ', req.query.event_id);
     var filename = 'sf_recipients' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Organization__r.Name, Organization__r.Logo__c, Award_Type__c, List_of_Photos__c, Summary__c FROM Shingo_Recipient__c" + (req.query.event_id ? " WHERE Id IN(SELECT Recipient__c FROM Shingo_Event_Recipient_Association__c WHERE Event__c='" + req.query.event_id + "')" : "");
+      var eventsSub = new qb().select()
+                      .field('Recipient__c')
+                      .from('Shingo_Event_Recipient_Association__c')
+                      .where('Event__c=\'' + req.query.event_id + '\'');
+      var query = new qb().select()
+                  .field('Award_Type__c')
+                  .field('Id')
+                  .field('List_of_Photos__c')
+                  .field('Organization__r.Logo__c')
+                  .field('Organization__r.Name')
+                  .field('Summary__c')
+                  .from('Shingo_Recipient__c')
+                  .where((req.query.event_id ? 'Id IN(' + eventsSub.toString() + ')' : ''));
 
-      SF.queryAsync(query)
+      logger.log("debug", "SF QUERY %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,
@@ -73,11 +90,27 @@ router.route('/')
 
 router.route('/:id')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if(!pattern.test(req.params.id)) throw Error('Invalid Salesforce Id: ', req.params.id);
     var filename = 'sf_recipients_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Organization__r.Name, Organization__r.Logo__c, Award_Type__c, List_of_Photos__c, List_of_Videos__c, Press_Release__c, Profile__c, Summary__c FROM Shingo_Recipient__c WHERE Id='" + req.params.id + "'";
-      SF.queryAsync(query)
+      var query = new qb().select()
+                  .field('Award_Type__c')
+                  .field('Id')
+                  .field('List_of_Photos__c')
+                  .field('List_of_Videos__c')
+                  .field('Organization__r.Logo__c')
+                  .field('Organization__r.Name')
+                  .field('Press_Release__c')
+                  .field('Profile__c')
+                  .field('Summary__c')
+                  .from('Shingo_Recipient__c')
+                  .where('Id=\'' + req.params.id + '\'');
+      
+      logger.log("debug", "SF QUERY %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,

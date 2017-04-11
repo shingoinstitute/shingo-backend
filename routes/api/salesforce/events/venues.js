@@ -5,18 +5,56 @@ var router = require('express').Router(),
   path = require('path'),
   SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
+  qb = require(path.join(appRoot, 'models/QueryBuilder')),
   Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger,
   cleaner = require('deep-cleaner');
  
 router.route('/')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if(req.query.event_id && !pattern.test(req.query.event_id)) throw Error('Invalid Salesforce Id: ', req.query.event_id);
     var filename = 'sf_venues' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Address__c, API_Google_Map__c, Venue_Location__c, Venue_Type__c, (SELECT Name, Floor__c, URL__c FROM Maps__r), (SELECT Shingo_Event__r.Id, Shingo_Event__r.Name FROM Shingo_Event_Venue_Associations__r), (SELECT Id, Name, Map_X_Coordinate__c, Map_Y_Coordinate__c, Floor__c FROM Shingo_Rooms__r) FROM Shingo_Venue__c" + (req.query.event_id ? " WHERE Id IN(SELECT Shingo_Venue__c FROM Shingo_Event_Venue__c WHERE Shingo_Event__c='" + req.query.event_id + "')" : "");
-      logger.log("debug", "SF QUERY %s", query);
-      SF.queryAsync(query)
+
+      var eventsSub = new qb().select()
+                      .field('Shingo_Venue__c')
+                      .from('Shingo_Event_Venue__c')
+                      .where('Shingo_Event__c=\'' + req.query.event_id + '\'');
+
+      var query = new qb().select()
+                  .field('API_Google_Map__c')
+                  .field('Address__c')
+                  .field('Id')
+                  .field('Name')
+                  .field('Venue_Location__c')
+                  .field('Venue_Type__c')
+                  .subQuery(new qb().select()
+                            .field('Floor__c')
+                            .field('Name')
+                            .field('URL__c')
+                            .from('Maps__r')
+                  )
+                  .subQuery(new qb().select()
+                           .field('Shingo_Event__r.Id')
+                           .field('Shingo_Event__r.Name')
+                           .from('Shingo_Event_Venue_Associations__r')
+                  )
+                  .subQuery(new qb().select()
+                            .field('Floor__c')
+                            .field('Id')
+                            .field('Map_X_Coordinate__c')
+                            .field('Map_Y_Coordinate__c')
+                            .field('Name')
+                            .from('Shingo_Rooms__r')
+                  )
+                  .from('Shingo_Venue__c')
+                  .where((req.query.event_id ? "Id IN(" + eventsSub.toString() + ")" : ""));
+
+      logger.log("debug", "SF QUERY %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,
@@ -73,11 +111,43 @@ router.route('/')
 
 router.route('/:id')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if(!pattern.test(req.params.id)) throw Error('Invalid Salesforce Id: ', req.params.id);
     var filename = 'sf_venues_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Address__c, API_Google_Map__c, Venue_Location__c, Venue_Type__c, (SELECT Name, Floor__c, URL__c FROM Maps__r), (SELECT Shingo_Event__r.Id, Shingo_Event__r.Name FROM Shingo_Event_Venue_Associations__r), (SELECT Id, Name, Map_X_Coordinate__c, Map_Y_Coordinate__c, Floor__c FROM Shingo_Rooms__r) FROM Shingo_Venue__c WHERE Id='" + req.params.id + "'";
-      SF.queryAsync(query)
+      var query = new qb().select()
+                  .field('API_Google_Map__c')
+                  .field('Address__c')
+                  .field('Id')
+                  .field('Name')
+                  .field('Venue_Location__c')
+                  .field('Venue_Type__c')
+                  .subQuery(new qb().select()
+                            .field('Floor__c')
+                            .field('Name')
+                            .field('URL__c')
+                            .from('Maps__r')
+                  )
+                  .subQuery(new qb().select()
+                           .field('Shingo_Event__r.Id')
+                           .field('Shingo_Event__r.Name')
+                           .from('Shingo_Event_Venue_Associations__r')
+                  )
+                  .subQuery(new qb().select()
+                            .field('Floor__c')
+                            .field('Id')
+                            .field('Map_X_Coordinate__c')
+                            .field('Map_Y_Coordinate__c')
+                            .field('Name')
+                            .from('Shingo_Rooms__r')
+                  )
+                  .from('Shingo_Venue__c')
+                  .where('Id=\'' + req.params.id + '\'');
+
+      logger.log("debug", "SF QUERY %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,

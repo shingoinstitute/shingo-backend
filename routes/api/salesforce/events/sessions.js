@@ -5,17 +5,47 @@ var router = require('express').Router(),
   path = require('path'),
   SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
+  qb = require(path.join(appRoot, 'models/QueryBuilder')),
   Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger,
   cleaner = require('deep-cleaner');
  
 router.route('/')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if((req.query.event_id && !pattern.test(req.query.event_id)) || (req.query.agenda_id && !pattern.test(req.query.agenda_id)))
+      throw Error('Invalid Salesforce Id: ', req.query.event_id);
     var filename = 'sf_sessions' + (req.query.agenda_id ? "_agenda_" + req.query.agenda_id : (req.query.event_id ? "_event_" + req.query.event_id : ""));
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Summary__c, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c, (SELECT Speaker__r.Id FROM Session_Speaker_Associations__r), Room__r.Id, Room__r.Name, Room__r.Associated_Venue__r.Id, Room__r.Associated_Venue__r.Name, Room__r.Map_X_Coordinate__c, Room__r.Map_Y_Coordinate__c, Room__r.Floor__c FROM Shingo_Session__c" + (req.query.agenda_id ? " WHERE Agenda_Day__c='" + req.query.agenda_id + "'" : (req.query.event_id ? " WHERE Agenda_Day__r.Event__c='" + req.query.event_id + "'" : ""));
-      SF.queryAsync(query)
+      var query = new qb().select()
+                  .field('End_Date_Time__c')
+                  .field('Id')
+                  .field('Name')
+                  .field('Publish_to_Web_App__c')
+                  .field('Room__r.Associated_Venue__r.Id')
+                  .field('Room__r.Associated_Venue__r.Name')
+                  .field('Room__r.Floor__c')
+                  .field('Room__r.Id')
+                  .field('Room__r.Map_X_Coordinate__c')
+                  .field('Room__r.Map_Y_Coordinate__c')
+                  .field('Room__r.Name')
+                  .field('Session_Display_Name__c')
+                  .field('Session_Type__c')
+                  .field('Start_Date_Time__c')
+                  .field('Summary__c')
+                  .subQuery(new qb().select()
+                            .field('Speaker__r.Id')
+                            .from('Session_Speaker_Associations__r')
+                  )
+                  .from('Shingo_Session__c');
+
+      if(req.query.agenda_id) query.where('Agenda_Day__c=\'' + req.query.agenda_id + '\'');
+      else if(req.query.event_id) query.where('Agenda_Day__r.Event__c=\'' + req.query.event_id + '\'');            
+
+      logger.log("debug", "SF QUERY %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,
@@ -72,11 +102,38 @@ router.route('/')
 
 router.route('/:id')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if(!pattern.test(req.params.id)) throw Error('Invalid Salesforce Id: ', req.params.id);
     var filename = 'sf_sessions_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Session_Display_Name__c, Start_Date_Time__c, End_Date_Time__c, Publish_to_Web_App__c, Session_Type__c, Track__c, Summary__c, Room__r.Name FROM Shingo_Session__c WHERE Id='" + req.params.id + "'";
-      SF.queryAsync(query)
+      var query = new qb().select()
+                  .field('End_Date_Time__c')
+                  .field('Id')
+                  .field('Name')
+                  .field('Publish_to_Web_App__c')
+                  .field('Room__r.Associated_Venue__r.Id')
+                  .field('Room__r.Associated_Venue__r.Name')
+                  .field('Room__r.Floor__c')
+                  .field('Room__r.Id')
+                  .field('Room__r.Map_X_Coordinate__c')
+                  .field('Room__r.Map_Y_Coordinate__c')
+                  .field('Room__r.Name')
+                  .field('Session_Display_Name__c')
+                  .field('Session_Type__c')
+                  .field('Start_Date_Time__c')
+                  .field('Summary__c')
+                  .field('Track__c')
+                  .subQuery(new qb().select()
+                            .field('Speaker__r.Id')
+                            .from('Session_Speaker_Associations__r')
+                  )
+                  .from('Shingo_Session__c')
+                  .where('Id=\'' + req.params.id + '\'');
+
+      logger.log("debug", "SF QUERY %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,

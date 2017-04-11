@@ -5,6 +5,7 @@ var router = require('express').Router(),
   path = require('path'),
   SF = Promise.promisifyAll(require(path.join(appRoot, 'models/sf'))),
   cache = Promise.promisifyAll(require(path.join(appRoot, 'models/cache'))),
+  qb = require(path.join(appRoot, 'models/QueryBuilder')),
   Logger = require(path.join(appRoot, 'Logger.js')),
   logger = new Logger().logger,
   cleaner = require('deep-cleaner');
@@ -12,12 +13,33 @@ var router = require('express').Router(),
  
 router.route('/')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if(req.query.event_id && !pattern.test(req.query.event_id)) throw Error('Invalid Salesforce Id: ', req.query.event_id);
     var filename = 'sf_hotels' + (req.query.event_id ? "_event_" + req.query.event_id : "");
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Address__c, Hotel_Phone__c, Hotel_Website__c, (SELECT Event__r.Id, Event__r.Name FROM Event_Hotel_Associations__r) FROM Shingo_Hotel__c" + (req.query.event_id ? " WHERE Id IN(SELECT Hotel__c FROM Shingo_Event_Hotel_Association__c WHERE Event__c='" + req.query.event_id + "')" : "");
+      var eventsSub = new qb().select()
+                      .field('Hotel__c')
+                      .from('Shingo_Event_Hotel_Association__c')
+                      .where('Event__c=\'' + req.query.event_id + '\'');
 
-      SF.queryAsync(query)
+      var query = new qb().select()
+                  .field('Address__c')
+                  .field('Hotel_Phone__c')
+                  .field('Hotel_Website__c')
+                  .field('Id')
+                  .field('Name')
+                  .subQuery(new qb().select()
+                            .field('Event__r.Id')
+                            .field('Event__r.Name')
+                            .from('Event_Hotel_Associations__r')
+                  )
+                  .from('Shingo_Hotel__c')
+                  .where((req.query.event_id ? 'Id IN(' + eventsSub.toString() + ')' : ''));
+
+      logger.log("debug", "SF QUERY %s", query.toString());
+
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,
@@ -74,11 +96,35 @@ router.route('/')
 
 router.route('/:id')
   .get(function (req, res) {
+    var pattern = /a[\w\d]{14,17}/;
+    if(!pattern.test(req.params.id)) throw Error('Invalid Salesforce Id: ', req.params.id);
     var filename = 'sf_hotels_' + req.params.id;
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Address__c, API_Google_Map__c, Code__c, Hotel_Phone__c, Hotel_Website__c, Travel_Information__c, (SELECT Event__r.Id, Event__r.Name FROM Event_Hotel_Associations__r), (SELECT Price__c FROM Shingo_Prices__r) FROM Shingo_Hotel__c WHERE Id='" + req.params.id + "'";
-      SF.queryAsync(query)
+      var query = new qb().select()
+                  .field('API_Google_Map__c')
+                  .field('Address__c')
+                  .field('Code__c')
+                  .field('Hotel_Phone__c')
+                  .field('Hotel_Website__c')
+                  .field('Id')
+                  .field('Name')
+                  .field('Travel_Information__c')
+                  .subQuery(new qb().select()
+                            .field('Event__r.Id')
+                            .field('Event__r.Name')
+                            .from('Event_Hotel_Associations__r')
+                  )
+                  .subQuery(new qb().select()
+                            .field('Price__c')
+                            .from('Shingo_Prices__r')
+                  )
+                  .from('Shingo_Hotel__c')
+                  .where('Id=\'' + req.params.id + '\'');
+
+      logger.log("debug", "SF QUERY %s", query.toString());
+      
+      SF.queryAsync(query.toString())
         .then(function (results) {
           var response = {
             success: true,
