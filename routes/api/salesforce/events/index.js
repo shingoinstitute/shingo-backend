@@ -174,6 +174,12 @@ router.route('/:id')
                     .field('Ad_Type__c')
                     .from('Sponsor_Ads__r')
                   )
+                  .subQuery(
+                    new qb().select()
+                    .field('Title__c')
+                    .field('Content__c')
+                    .from('ShingoTravelInfos__r')
+                  )                  
                   .from('Shingo_Event__c')
                   .where('Id=\'' + req.params.id + '\'');
       logger.log('debug', "SF Query: " + query.toString());
