@@ -178,7 +178,7 @@ router.route('/:id')
                     new qb().select()
                     .field('Title__c')
                     .field('Content__c')
-                    .from('ShingoTravelInfos__r')
+                    .from('Shingo_Travel_Infos__r')
                   )                  
                   .from('Shingo_Event__c')
                   .where('Id=\'' + req.params.id + '\'');
