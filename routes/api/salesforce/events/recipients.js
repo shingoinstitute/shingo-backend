@@ -22,12 +22,14 @@ router.route('/')
                       .from('Shingo_Event_Recipient_Association__c')
                       .where('Event__c=\'' + req.query.event_id + '\'');
       var query = new qb().select()
+                  .field('Name')
                   .field('Award_Type__c')
                   .field('Id')
                   .field('List_of_Photos__c')
                   .field('Organization__r.Logo__c')
                   .field('Organization__r.Name')
                   .field('Summary__c')
+                  .field('Author_s__c')
                   .from('Shingo_Recipient__c')
                   .where((req.query.event_id ? 'Id IN(' + eventsSub.toString() + ')' : ''));
 
