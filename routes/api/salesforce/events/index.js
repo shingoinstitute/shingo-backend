@@ -163,6 +163,7 @@ router.route('/:id')
                     .field('Contact__r.Title')
                     .field('Contact__r.Account.Name')
                     .from('Shingo_Attendees__r')
+                    .where('Status__c!=\'Cancelled\'')
                   )
                   .subQuery(
                     new qb().select()
