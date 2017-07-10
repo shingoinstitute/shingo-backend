@@ -89,6 +89,7 @@ function QueryBuilder() {
       });
       q += " FROM " + this.query.table;
       if(this.query.clause) q += " WHERE " + this.query.clause;
+      if(this.query.orderBy) q += " " + this.query.orderBy;
       return q;
   }
 }
