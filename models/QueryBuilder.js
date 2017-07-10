@@ -24,7 +24,8 @@ function QueryBuilder() {
       action: "",
       table: "",
       fields: [],
-      clause: ""
+      clause: "",
+      orderBy: ""
   };
 
   this.select = function(){
@@ -69,6 +70,12 @@ function QueryBuilder() {
 
     return this;
   };
+
+  this.orderBy = function(field){
+    if(typeof field !== 'string') throw Error('Bad field!');
+    this.orderBy = `ORDER BY ${field}`;
+    return this;
+  }
 
   this.subQuery = function(query){
     this.query.fields.push("(" + query.toString() + ")");
