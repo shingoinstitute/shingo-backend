@@ -48,6 +48,7 @@ router.route('/')
                     .field('Primary_Color__c')
                     .field('Registration_Link__c')
                     .field('Sales_Text__c')
+                    .field('Disruptor_Image__c')
                     .from('Shingo_Event__c')
                     .where((publish_to_web ? "Publish_to_Web_App__c=true": ""));
       logger.log('debug', "SF Query: " + query.toString());              
