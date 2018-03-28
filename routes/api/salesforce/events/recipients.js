@@ -38,14 +38,15 @@ router.route('/')
       SF.queryAsync(query.toString())
         .then(function (results) {
 
-          for(var i in results.records){
-            if(results.records[i].Award_Type__c === 'Publication' || results.records[i].Award_Type__c === 'Research'){
-              results.records[i].Organization__r = {
-                Logo__c: results.records[i].List_of_Photos__c.split(',')[0],
-                Name: results.records[i].Name
+          for(var record of results.records){
+            if(record.Award_Type__c === 'Publication' || record.Award_Type__c === 'Research'){
+              var split_photos = record.List_of_Photos__c && record.List_of_Photos__c.split(',');
+              record.Organization__r = {
+                Logo__c: split_photos && split_photos.length ? split_photos[0] : null,
+                Name: record.Name
               };
 
-              logger.log("debug", results.records[i]);
+              // logger.log("debug", results.records[i]);
             }
           }
 
