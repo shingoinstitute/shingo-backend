@@ -40,6 +40,11 @@ app.use(
 );
 
 app.use('/', routes);
+app.use(function(err, req, res, next) {
+    console.error(err)
+    logger.log('error', 'ERROR %s', err.toString())
+    return next(err)
+})
 
 app.listen(app.get('port'), function(){
   logger.log("info", "Node app is running on port %s", app.get('port'));
