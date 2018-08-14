@@ -12,7 +12,21 @@ router.route('/')
     var filename = 'workshops';
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
-      var query = "SELECT Id, Name, Host_Site__c, Start_Date__c, End_Date__c, Event_City__c, Event_Country__c, Organizing_Affiliate__r.Name, Organizing_Affiliate__r.Id, Workshop_Type__c, Registration_Website__c FROM Workshop__c WHERE Public__c=true AND Status__c='Verified'";
+      var fields = [
+        "Id",
+        "Name",
+        "Host_Site__c",
+        "Start_Date__c",
+        "End_Date__c",
+        "Event_City__c",
+        "Event_Country__c",
+        "Organizing_Affiliate__r.Name",
+        "Organizing_Affiliate__r.Id",
+        "Workshop_Type__c",
+        "Registration_Website__c",
+        "Additional_Information__c"
+      ]
+      var query = "SELECT " + fields.join() + " FROM Workshop__c WHERE Public__c=true AND Status__c='Verified'";
       SF.queryAsync(query)
         .then(function (results) {
           var response = {
