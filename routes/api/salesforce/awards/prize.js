@@ -27,4 +27,11 @@ router.route('/:id')
   q.getQuery(filename, query, force_refresh, res)
 })
 
+router.get('/next/:next_records', function(req, res){
+    var filename = file + '_next_' + req.params.next_records;
+    var query = req.params.next_records;
+    var force_refresh = req.query.force_refresh ? req. force_refresh : false;
+    q.getQuery(filename, query, force_refresh, res)
+})
+
 module.exports = router;
