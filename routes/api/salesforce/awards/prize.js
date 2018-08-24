@@ -9,7 +9,7 @@ var file = 'prize_awards';
 router.route('/')
 .get(function(req, res, next){
   var filename = file;
-  var query = "Select Id, Name, Date_Awarded__c, City__c, State__c, Country__c, SV_Status__c FROM Assessment__c WHERE Publish_to_Website__c=true ORDER BY Date_Awarded__c DESC";
+  var query = "Select Id, Name, Date_Awarded__c, City__c, State__c, Country__c, SV_Status__c FROM Assessment__c WHERE Publish_to_Website__c= TRUE";
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   q.getQuery(filename, query, force_refresh, res)
 })
@@ -25,6 +25,13 @@ router.route('/:id')
   var query = "Select Name, Company_Profile__c, Press_Release_Link__c, Link_to_Logo__c FROM Assessment__c WHERE Publish_to_Website__c=true AND Id='" + req.params.id + "'";
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   q.getQuery(filename, query, force_refresh, res)
+})
+
+router.get('/next/:next_records', function(req, res){
+    var filename = file + '_next_' + req.params.next_records;
+    var query = req.params.next_records;
+    var force_refresh = req.query.force_refresh ? req. force_refresh : false;
+    q.getQuery(filename, query, force_refresh, res)
 })
 
 module.exports = router;
