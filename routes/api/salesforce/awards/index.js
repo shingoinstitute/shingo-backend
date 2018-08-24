@@ -1,7 +1,9 @@
 var router = require('express').Router(),
+  prize_route = require('./prize'),
   publication_route = require('./publication'),
   research_route = require('./research');
 
+router.use('/prize', prize_route);
 router.use('/publication', publication_route);
 router.use('/research', research_route);
 
