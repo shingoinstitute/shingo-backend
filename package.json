@@ -4,6 +4,7 @@
   "description": "Consolidate all Shingo Node servers into one.",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,7 +26,7 @@
     "express-mysql-session": "^1.1.1",
     "express-session": "^1.13.0",
     "express-subdomain": "^1.0.5",
-    "jsforce": "^1.6.5",
+    "jsforce": "^1.9.0",
     "jsonfile": "^2.3.1",
     "mysql": "^2.11.1",
     "password-hash": "^1.2.2",

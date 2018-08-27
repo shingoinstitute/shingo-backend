@@ -7,7 +7,7 @@ var Promise = require('bluebird'),
 var q = {}
 
 q.getQuery = function(filename, query, force_refresh, res){
-  if(cache.needsUpdated(filename, 30) || force_refresh){
+  if(cache.needsUpdated(filename, 30) || force_refresh || process.env.NODE_ENV != "production") {
     var query = query;
     SF.queryAsync(query)
       .then(function(results){
@@ -25,7 +25,7 @@ q.getQuery = function(filename, query, force_refresh, res){
         console.log("Cache Updated! Filename:", filename);
       })
       .catch(function(err){
-        response = {
+        const response = {
           success: false,
           error: err
         }
