@@ -9,7 +9,8 @@ var file = 'prize_awards';
 router.route('/')
 .get(function(req, res, next){
   var filename = file;
-  var query = "Select Id, Name, Date_Awarded__c, City__c, State__c, Country__c, SV_Status__c FROM Assessment__c WHERE Publish_to_Website__c = TRUE ORDER BY Name";
+  //var query = "Select Id, Name, Date_Awarded__c, City__c, State__c, Country__c, SV_Status__c FROM Assessment__c WHERE Publish_to_Website__c = TRUE ORDER BY Name";
+  var query = "Select Id, Name, Public_Author_Name__c, Press_Release_Date__c FROM Publication_Award__c WHERE Published__c=true ORDER BY Press_Release_Date__c DESC";
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   q.getQuery(filename, query, force_refresh, res)
 })
