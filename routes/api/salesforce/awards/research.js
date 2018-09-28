@@ -9,7 +9,7 @@ var file = 'research_awards';
 router.route('/')
 .get(function(req, res, next){
   var filename = file;
-  var query = "Select Id, Name, Public_Author_Name__c, Press_Release_Date__c FROM Research_Award__c WHERE Published__c=true ORDER BY Press_Release_Date__c DESC";
+  var query = "Select Id, Name, Public_Author_Name__c, Press_Release_Date__c, Press_Release_Link__c FROM Research_Award__c WHERE Published__c=true ORDER BY Press_Release_Date__c DESC";
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   q.getQuery(filename, query, force_refresh, res)
 })
@@ -18,14 +18,6 @@ router.route('/')
 .post(function(req, res) { q.notImplemented(req, res)})
 .put(function(req, res) { q.notImplemented(req, res)})
 .delete(function(req, res) { q.notImplemented(req, res)})
-
-router.route('/:id')
-.get(function(req, res, next){
-  var filename = file + "_" + req.params.id;
-  var query = "Select Id, Press_Release_Date__c, Name, Published__c, Public_Author_Name__c, Press_Release_Copy__c FROM Research_Award__c WHERE Published__c=true AND Id='" + req.params.id + "'";
-  var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
-  q.getQuery(filename, query, force_refresh, res)
-})
 
 // Get overflow records for publication award
 router.get('/next/:next_records', function(req, res){
