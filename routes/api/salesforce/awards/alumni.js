@@ -9,7 +9,7 @@ var file = 'alumni';
 router.route('/')
 .get(function(req, res, next){
   var filename = file;
-  var query = "Select Id, Name, Account.Name, Title From Contact Where Shingo_Prize_Relationship__c Includes ('Alumni') ORDER BY Name";
+  var query = "Select Id, Name, Account.Name, Title From Contact Where Shingo_Prize_Relationship__c Includes ('Alumni') ORDER BY LastName";
   var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
   q.getQuery(filename, query, force_refresh, res)
 })
