@@ -68,8 +68,4 @@ router.get('/auth_callback', function(req, res) {
     });
 });
 
-router.use('/', function(req, res){
-  res.redirect('https://docs.shingo.org');
-});
-
 module.exports = router;
