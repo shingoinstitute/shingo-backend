@@ -42,7 +42,7 @@ router.route('/')
     }
   })
 
-  router.route('/')
+  router.route('/respub')
   .get(function (req, res, next) {
     var filename = 'respub_examiner';
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
