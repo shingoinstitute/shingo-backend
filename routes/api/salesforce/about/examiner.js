@@ -11,10 +11,43 @@ var router = require('express').Router(),
 
 router.route('/')
   .get(function (req, res, next) {
-    var filename = 'site_examiner';
+    var filename = 'examiner';
     var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
     if (cache.needsUpdated(filename, 30) || force_refresh) {
       var query = "SELECT Id, Name, Title, Account.Name FROM Contact WHERE Shingo_Prize_Relationship__c INCLUDES('Research Examiner', 'Site Examiner', 'Publication Examiner') ORDER BY LastName";
+      SF.queryAsync(query)
+        .then(function (results) {
+          var response = {
+            success: true,
+            examiners: results.records,
+            total_size: results.totalSize,
+            done: results.done,
+            next_records: results.nextRecordsUrl
+          }
+
+          res.json(response);
+          return cache.addAsync(filename, response);
+        })
+        .then(function () {
+          logger.log("verbose", "Cache updated!");
+        })
+        .catch(function (err) {
+          res.json({
+            success: false,
+            error: err
+          });
+        });
+    } else {
+      res.json(cache[filename]);
+    }
+  })
+
+  router.route('/')
+  .get(function (req, res, next) {
+    var filename = 'respub_examiner';
+    var force_refresh = req.query.force_refresh ? req.query.force_refresh : false;
+    if (cache.needsUpdated(filename, 30) || force_refresh) {
+      var query = "SELECT Id, Name, Title, Account.Name, Shingo_Prize_Relationship__c FROM Contact WHERE Shingo_Prize_Relationship__c INCLUDES('Research Examiner', 'Publication Examiner') ORDER BY LastName";
       SF.queryAsync(query)
         .then(function (results) {
           var response = {
